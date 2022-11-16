@@ -18,6 +18,8 @@ public:
 private slots:
     void on_pushButtonNewBloodSample_clicked();
 
+    void savePatientDataFileAs();
+
 private:
     Ui::MainWindow *ui;
 };

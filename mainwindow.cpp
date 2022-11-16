@@ -8,6 +8,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    connect(ui->actionSettingsSaveAs, SIGNAL(triggered()), this, SLOT(savePatientDataFileAs()));
+
     // Load settings file first.
 
     QFile settingsFile;
@@ -84,3 +86,25 @@ void MainWindow::on_pushButtonNewBloodSample_clicked()
     ui->tableWidgetBloodSamples->setRowCount(ui->tableWidgetBloodSamples->rowCount() + 1);
 }
 
+void MainWindow::savePatientDataFileAs()
+{
+    QString patientDataFileName = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("JSON (*.json)"));
+
+    // Collect and write all data to the selected patient data file.
+
+    QFile patientDataFile;
+    patientDataFile.setFileName(patientDataFileName);
+    patientDataFile.open(QIODevice::ReadWrite | QIODevice::Text);
+    QString patientDataString = patientDataFile.readAll();
+    QJsonDocument patientDataJsonDocument;
+    QJsonObject patientDataJsonObject = patientDataJsonDocument.object();
+
+    // ToDo: Collect all data.
+    patientDataJsonObject["name"] = "Test123";
+
+    patientDataJsonDocument.setObject(patientDataJsonObject);
+
+    patientDataFile.write(patientDataJsonDocument.toJson());
+
+    patientDataFile.close();
+}

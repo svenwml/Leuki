@@ -140,14 +140,14 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionSettings"/>
+    <addaction name="actionSettingsSaveAs"/>
    </widget>
    <addaction name="menuLeuki"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="actionSettings">
+  <action name="actionSettingsSaveAs">
    <property name="text">
-    <string>Settings</string>
+    <string>Save As</string>
    </property>
   </action>
  </widget>
