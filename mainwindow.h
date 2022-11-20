@@ -20,6 +20,8 @@ private slots:
 
     void savePatientDataFileAs();
 
+    void on_actionOpenPatientDataFile_triggered();
+
 private:
     Ui::MainWindow *ui;
 };

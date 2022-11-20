@@ -10,65 +10,25 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->actionSettingsSaveAs, SIGNAL(triggered()), this, SLOT(savePatientDataFileAs()));
 
-    // Load settings file first.
+//    // Load settings file first.
+//
+//    QFile settingsFile;
+//    settingsFile.setFileName(QDir::currentPath() + "/" + "leukiSettings.json");
+//    settingsFile.open(QIODevice::ReadOnly | QIODevice::Text);
+//    QString settingsString = settingsFile.readAll();
+//    settingsFile.close();
+//    QJsonDocument settingsJsonDocument = QJsonDocument::fromJson(settingsString.toUtf8());
+//    QJsonObject settingsJsonObject = settingsJsonDocument.object();
 
-    QFile settingsFile;
-    settingsFile.setFileName(QDir::currentPath() + "/" + "leukiSettings.json");
-    settingsFile.open(QIODevice::ReadOnly | QIODevice::Text);
-    QString settingsString = settingsFile.readAll();
-    settingsFile.close();
-    QJsonDocument settingsJsonDocument = QJsonDocument::fromJson(settingsString.toUtf8());
-    QJsonObject settingsJsonObject = settingsJsonDocument.object();
+//    auto patientDataFileName = settingsJsonObject["patientDataFilePath"].toString();
 
-    auto patientDataFileName = settingsJsonObject["patientDataFilePath"].toString();
-
-    if(patientDataFileName == "")
-    {
-        QMessageBox messageBoxNoFileSelected;
-        messageBoxNoFileSelected.setText("No patient data file given! Check Leuki settings file.");
-        messageBoxNoFileSelected.exec();
-        exit(0);
-    }
-
-    // Load patient data from patient data file.
-
-    QFile patientDataFile;
-    patientDataFile.setFileName(patientDataFileName);
-    patientDataFile.open(QIODevice::ReadOnly | QIODevice::Text);
-    QString patientDataString = patientDataFile.readAll();
-    patientDataFile.close();
-    QJsonDocument patientDataJsonDocument = QJsonDocument::fromJson(patientDataString.toUtf8());
-    QJsonObject patientDataJsonObject = patientDataJsonDocument.object();
-
-    // Fill forms with given patient data.
-
-    ui->lineEditPatientName->setText(patientDataJsonObject["name"].toString());
-    ui->lineEditPatientDateOfBirth->setText(patientDataJsonObject["dateOfBirth"].toString());
-
-    ui->tableWidgetBloodSamples->setColumnCount(5);
-    ui->tableWidgetBloodSamples->setHorizontalHeaderItem(0, new QTableWidgetItem("Date"));
-    ui->tableWidgetBloodSamples->setHorizontalHeaderItem(1, new QTableWidgetItem("Leukocytes"));
-    ui->tableWidgetBloodSamples->setHorizontalHeaderItem(2, new QTableWidgetItem("Erythrocytes"));
-    ui->tableWidgetBloodSamples->setHorizontalHeaderItem(3, new QTableWidgetItem("Hemoglobin"));
-    ui->tableWidgetBloodSamples->setHorizontalHeaderItem(4, new QTableWidgetItem("Thrombocytes"));
-
-    auto bloodSamplesArraySize = patientDataJsonObject["bloodSamples"].toArray().size();
-
-    ui->tableWidgetBloodSamples->setRowCount(bloodSamplesArraySize);
-
-    for(auto i = 0; i < bloodSamplesArraySize; i++)
-    {
-        // Date
-        ui->tableWidgetBloodSamples->setItem(i, 0, new QTableWidgetItem(patientDataJsonObject["bloodSamples"][i]["date"].toString()));
-        // Leukocytes
-        ui->tableWidgetBloodSamples->setItem(i, 1, new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["leukocytes"].toDouble())));
-        // Erythrocytes
-        ui->tableWidgetBloodSamples->setItem(i, 2, new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["erythrocytes"].toDouble())));
-        // Hemoglobin
-        ui->tableWidgetBloodSamples->setItem(i, 3, new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["hemoglobin"].toDouble())));
-        // Thrombocytes
-        ui->tableWidgetBloodSamples->setItem(i, 4, new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["thrombocytes"].toDouble())));
-    }
+//    if(patientDataFileName == "")
+//    {
+//        QMessageBox messageBoxNoFileSelected;
+//        messageBoxNoFileSelected.setText("No patient data file given! Check Leuki settings file.");
+//        messageBoxNoFileSelected.exec();
+//        exit(0);
+//    }
 
     // Setup plot.
 
@@ -108,3 +68,51 @@ void MainWindow::savePatientDataFileAs()
 
     patientDataFile.close();
 }
+
+void MainWindow::on_actionOpenPatientDataFile_triggered()
+{
+    // Load patient data from patient data file.
+
+    QString patientDataFileName = QFileDialog::getOpenFileName(this, tr("Open File"),
+                                                    "",
+                                                    tr("JSON (*.json)"));
+
+    QFile patientDataFile;
+    patientDataFile.setFileName(patientDataFileName);
+    patientDataFile.open(QIODevice::ReadOnly | QIODevice::Text);
+    QString patientDataString = patientDataFile.readAll();
+    patientDataFile.close();
+    QJsonDocument patientDataJsonDocument = QJsonDocument::fromJson(patientDataString.toUtf8());
+    QJsonObject patientDataJsonObject = patientDataJsonDocument.object();
+
+    // Fill forms with given patient data.
+
+    ui->lineEditPatientName->setText(patientDataJsonObject["name"].toString());
+    ui->lineEditPatientDateOfBirth->setText(patientDataJsonObject["dateOfBirth"].toString());
+
+    ui->tableWidgetBloodSamples->setColumnCount(5);
+    ui->tableWidgetBloodSamples->setHorizontalHeaderItem(0, new QTableWidgetItem("Date"));
+    ui->tableWidgetBloodSamples->setHorizontalHeaderItem(1, new QTableWidgetItem("Leukocytes"));
+    ui->tableWidgetBloodSamples->setHorizontalHeaderItem(2, new QTableWidgetItem("Erythrocytes"));
+    ui->tableWidgetBloodSamples->setHorizontalHeaderItem(3, new QTableWidgetItem("Hemoglobin"));
+    ui->tableWidgetBloodSamples->setHorizontalHeaderItem(4, new QTableWidgetItem("Thrombocytes"));
+
+    auto bloodSamplesArraySize = patientDataJsonObject["bloodSamples"].toArray().size();
+
+    ui->tableWidgetBloodSamples->setRowCount(bloodSamplesArraySize);
+
+    for(auto i = 0; i < bloodSamplesArraySize; i++)
+    {
+        // Date
+        ui->tableWidgetBloodSamples->setItem(i, 0, new QTableWidgetItem(patientDataJsonObject["bloodSamples"][i]["date"].toString()));
+        // Leukocytes
+        ui->tableWidgetBloodSamples->setItem(i, 1, new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["leukocytes"].toDouble())));
+        // Erythrocytes
+        ui->tableWidgetBloodSamples->setItem(i, 2, new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["erythrocytes"].toDouble())));
+        // Hemoglobin
+        ui->tableWidgetBloodSamples->setItem(i, 3, new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["hemoglobin"].toDouble())));
+        // Thrombocytes
+        ui->tableWidgetBloodSamples->setItem(i, 4, new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["thrombocytes"].toDouble())));
+    }
+}
+

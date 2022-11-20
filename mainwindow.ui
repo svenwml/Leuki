@@ -140,6 +140,7 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionOpenPatientDataFile"/>
     <addaction name="actionSettingsSaveAs"/>
    </widget>
    <addaction name="menuLeuki"/>
@@ -148,6 +149,11 @@
   <action name="actionSettingsSaveAs">
    <property name="text">
     <string>Save As</string>
+   </property>
+  </action>
+  <action name="actionOpenPatientDataFile">
+   <property name="text">
+    <string>Open...</string>
    </property>
   </action>
  </widget>
