@@ -33,6 +33,18 @@ MainWindow::MainWindow(QWidget *parent)
     // Setup plot.
 
     ui->customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes | QCP::iSelectLegend | QCP::iSelectPlottables);
+
+    ui->customPlot->xAxis->setLabel("Date");
+    ui->customPlot->yAxis->setLabel("Leukocytes");
+
+    // Configure horizontal axis to show date.
+    QSharedPointer<QCPAxisTickerDateTime> dateTicker(new QCPAxisTickerDateTime);
+    dateTicker->setDateTimeFormat("dd.MM.yyyy");
+    ui->customPlot->xAxis->setTicker(dateTicker);
+
+    // Initialize with current date.
+    double currentSecondsSinceEpoch = QDateTime::currentSecsSinceEpoch();
+    ui->customPlot->xAxis->setRange(currentSecondsSinceEpoch, currentSecondsSinceEpoch + 1);
 }
 
 MainWindow::~MainWindow()
@@ -101,12 +113,30 @@ void MainWindow::on_actionOpenPatientDataFile_triggered()
 
     ui->tableWidgetBloodSamples->setRowCount(bloodSamplesArraySize);
 
+    QVector<QCPGraphData> leukocytesGraphData(bloodSamplesArraySize);
+    ui->customPlot->addGraph();
+    ui->customPlot->graph()->setLineStyle(QCPGraph::lsLine);
+    ui->customPlot->graph()->setPen(QPen(Qt::blue));
+
+    double leukocytesMax = 0.0;
+
     for(auto i = 0; i < bloodSamplesArraySize; i++)
     {
         // Date
         ui->tableWidgetBloodSamples->setItem(i, 0, new QTableWidgetItem(patientDataJsonObject["bloodSamples"][i]["date"].toString()));
+
         // Leukocytes
-        ui->tableWidgetBloodSamples->setItem(i, 1, new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["leukocytes"].toDouble())));
+
+        double leukocytes = patientDataJsonObject["bloodSamples"][i]["leukocytes"].toDouble();
+        ui->tableWidgetBloodSamples->setItem(i, 1, new QTableWidgetItem(QString::number(leukocytes)));
+        leukocytesGraphData[i].key = QDateTime::fromString(patientDataJsonObject["bloodSamples"][i]["date"].toString(), "dd.MM.yyyy").toSecsSinceEpoch();
+        leukocytesGraphData[i].value = leukocytes;
+
+        if(leukocytes > leukocytesMax)
+        {
+            leukocytesMax = leukocytes;
+        }
+
         // Erythrocytes
         ui->tableWidgetBloodSamples->setItem(i, 2, new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["erythrocytes"].toDouble())));
         // Hemoglobin
@@ -114,5 +144,18 @@ void MainWindow::on_actionOpenPatientDataFile_triggered()
         // Thrombocytes
         ui->tableWidgetBloodSamples->setItem(i, 4, new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["thrombocytes"].toDouble())));
     }
+
+    // Plot (date axis range)
+    if(bloodSamplesArraySize)
+    {
+        double firstBloodSampleDateSecsSinceEpoch = QDateTime::fromString(patientDataJsonObject["bloodSamples"][0]["date"].toString(), "dd.MM.yyyy").toSecsSinceEpoch();
+        double lastBloodSampleDateSecsSinceEpoch = QDateTime::fromString(patientDataJsonObject["bloodSamples"][bloodSamplesArraySize - 1]["date"].toString(), "dd.MM.yyyy").toSecsSinceEpoch();
+        ui->customPlot->xAxis->setRange(firstBloodSampleDateSecsSinceEpoch - 24*3600, lastBloodSampleDateSecsSinceEpoch + 24*3600);
+    }
+
+    ui->customPlot->yAxis->setRange(0, leukocytesMax);
+    ui->customPlot->rescaleAxes();
+    ui->customPlot->graph()->data()->set(leukocytesGraphData);
+    ui->customPlot->replot();
 }
 
