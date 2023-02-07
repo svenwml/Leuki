@@ -66,13 +66,30 @@ void MainWindow::savePatientDataFileAs()
 
     QFile patientDataFile;
     patientDataFile.setFileName(patientDataFileName);
-    patientDataFile.open(QIODevice::ReadWrite | QIODevice::Text);
-    QString patientDataString = patientDataFile.readAll();
+    patientDataFile.open(QIODevice::WriteOnly | QIODevice::Text);
     QJsonDocument patientDataJsonDocument;
-    QJsonObject patientDataJsonObject = patientDataJsonDocument.object();
+    QJsonObject patientDataJsonObject;
 
-    // ToDo: Collect all data.
-    patientDataJsonObject["name"] = "Test123";
+    patientDataJsonObject["name"] = ui->lineEditPatientName->text();
+    patientDataJsonObject["dateOfBirth"] = ui->lineEditPatientDateOfBirth->text();
+
+    QJsonArray bloodSamplesArray;
+    auto bloodSamplesArraySize = ui->tableWidgetBloodSamples->rowCount();
+
+    for(int i = 0; i < bloodSamplesArraySize; i++)
+    {
+        QJsonObject bloodSamplesJsonObject;
+
+        bloodSamplesJsonObject["date"] = ui->tableWidgetBloodSamples->item(i, 0)->text();
+        bloodSamplesJsonObject["leukocytes"] = ui->tableWidgetBloodSamples->item(i, 1)->text().toDouble();
+        bloodSamplesJsonObject["erythrocytes"] = ui->tableWidgetBloodSamples->item(i, 2)->text().toDouble();
+        bloodSamplesJsonObject["hemoglobin"] = ui->tableWidgetBloodSamples->item(i, 3)->text().toDouble();
+        bloodSamplesJsonObject["thrombocytes"] = ui->tableWidgetBloodSamples->item(i, 4)->text().toDouble();
+
+        bloodSamplesArray.push_back(bloodSamplesJsonObject);
+    }
+
+    patientDataJsonObject["bloodSamples"] = bloodSamplesArray;
 
     patientDataJsonDocument.setObject(patientDataJsonObject);
 
