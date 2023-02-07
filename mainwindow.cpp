@@ -123,13 +123,14 @@ void MainWindow::on_actionOpenPatientDataFile_triggered()
     for(auto i = 0; i < bloodSamplesArraySize; i++)
     {
         // Date
-        ui->tableWidgetBloodSamples->setItem(i, 0, new QTableWidgetItem(patientDataJsonObject["bloodSamples"][i]["date"].toString()));
+        QString dateString = patientDataJsonObject["bloodSamples"][i]["date"].toString();
+        ui->tableWidgetBloodSamples->setItem(i, 0, new QTableWidgetItem(dateString));
 
         // Leukocytes
 
         double leukocytes = patientDataJsonObject["bloodSamples"][i]["leukocytes"].toDouble();
         ui->tableWidgetBloodSamples->setItem(i, 1, new QTableWidgetItem(QString::number(leukocytes)));
-        leukocytesGraphData[i].key = QDateTime::fromString(patientDataJsonObject["bloodSamples"][i]["date"].toString(), "dd.MM.yyyy").toSecsSinceEpoch();
+        leukocytesGraphData[i].key = QDateTime::fromString(dateString, "dd.MM.yyyy").toSecsSinceEpoch();
         leukocytesGraphData[i].value = leukocytes;
 
         if(leukocytes > leukocytesMax)
