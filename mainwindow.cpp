@@ -90,7 +90,7 @@ void MainWindow::savePatientDataFileAs()
     QJsonArray bloodSamplesArray;
     auto bloodSamplesArraySize = ui->tableWidgetBloodSamples->rowCount();
 
-    for(int i = 0; i < bloodSamplesArraySize; i++)
+    for(auto i = 0; i < bloodSamplesArraySize; i++)
     {
         QJsonObject bloodSamplesJsonObject;
 
