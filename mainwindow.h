@@ -22,6 +22,8 @@ private slots:
 
     void on_actionOpenPatientDataFile_triggered();
 
+    void on_pushButtonNewChemoAndMed_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

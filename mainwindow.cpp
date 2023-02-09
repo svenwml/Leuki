@@ -30,6 +30,20 @@ MainWindow::MainWindow(QWidget *parent)
 //        exit(0);
 //    }
 
+    // Prepare tables.
+
+    ui->tableWidgetBloodSamples->setColumnCount(5);
+    ui->tableWidgetBloodSamples->setHorizontalHeaderItem(0, new QTableWidgetItem("Date"));
+    ui->tableWidgetBloodSamples->setHorizontalHeaderItem(1, new QTableWidgetItem("Leukocytes"));
+    ui->tableWidgetBloodSamples->setHorizontalHeaderItem(2, new QTableWidgetItem("Erythrocytes"));
+    ui->tableWidgetBloodSamples->setHorizontalHeaderItem(3, new QTableWidgetItem("Hemoglobin"));
+    ui->tableWidgetBloodSamples->setHorizontalHeaderItem(4, new QTableWidgetItem("Thrombocytes"));
+
+    ui->tableWidgetChemoAndMeds->setColumnCount(3);
+    ui->tableWidgetChemoAndMeds->setHorizontalHeaderItem(0, new QTableWidgetItem("Date"));
+    ui->tableWidgetChemoAndMeds->setHorizontalHeaderItem(1, new QTableWidgetItem("Name"));
+    ui->tableWidgetChemoAndMeds->setHorizontalHeaderItem(2, new QTableWidgetItem("Dose"));
+
     // Setup plot.
 
     ui->customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes | QCP::iSelectLegend | QCP::iSelectPlottables);
@@ -91,6 +105,22 @@ void MainWindow::savePatientDataFileAs()
 
     patientDataJsonObject["bloodSamples"] = bloodSamplesArray;
 
+    QJsonArray chemoAndMedsArray;
+    auto chemoAndMedsArraySize = ui->tableWidgetChemoAndMeds->rowCount();
+
+    for(auto i = 0; i < chemoAndMedsArraySize; i++)
+    {
+        QJsonObject chemoAndMedsJsonObject;
+
+        chemoAndMedsJsonObject["date"] = ui->tableWidgetChemoAndMeds->item(i, 0)->text();
+        chemoAndMedsJsonObject["name"] = ui->tableWidgetChemoAndMeds->item(i, 1)->text();
+        chemoAndMedsJsonObject["dose"] = ui->tableWidgetChemoAndMeds->item(i, 2)->text();
+
+        chemoAndMedsArray.push_back(chemoAndMedsJsonObject);
+    }
+
+    patientDataJsonObject["chemoTherapyAndMedicamentation"] = chemoAndMedsArray;
+
     patientDataJsonDocument.setObject(patientDataJsonObject);
 
     patientDataFile.write(patientDataJsonDocument.toJson());
@@ -118,13 +148,6 @@ void MainWindow::on_actionOpenPatientDataFile_triggered()
 
     ui->lineEditPatientName->setText(patientDataJsonObject["name"].toString());
     ui->lineEditPatientDateOfBirth->setText(patientDataJsonObject["dateOfBirth"].toString());
-
-    ui->tableWidgetBloodSamples->setColumnCount(5);
-    ui->tableWidgetBloodSamples->setHorizontalHeaderItem(0, new QTableWidgetItem("Date"));
-    ui->tableWidgetBloodSamples->setHorizontalHeaderItem(1, new QTableWidgetItem("Leukocytes"));
-    ui->tableWidgetBloodSamples->setHorizontalHeaderItem(2, new QTableWidgetItem("Erythrocytes"));
-    ui->tableWidgetBloodSamples->setHorizontalHeaderItem(3, new QTableWidgetItem("Hemoglobin"));
-    ui->tableWidgetBloodSamples->setHorizontalHeaderItem(4, new QTableWidgetItem("Thrombocytes"));
 
     auto bloodSamplesArraySize = patientDataJsonObject["bloodSamples"].toArray().size();
 
@@ -163,6 +186,40 @@ void MainWindow::on_actionOpenPatientDataFile_triggered()
         ui->tableWidgetBloodSamples->setItem(i, 4, new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["thrombocytes"].toDouble())));
     }
 
+    auto chemoAndMedsArraySize = patientDataJsonObject["chemoTherapyAndMedicamentation"].toArray().size();
+
+    ui->tableWidgetChemoAndMeds->setRowCount(chemoAndMedsArraySize);
+
+    for(auto i = 0; i < chemoAndMedsArraySize; i++)
+    {
+        // Date
+        QString dateString = patientDataJsonObject["chemoTherapyAndMedicamentation"][i]["date"].toString();
+        ui->tableWidgetChemoAndMeds->setItem(i, 0, new QTableWidgetItem(dateString));
+
+        // Name
+        QString nameString = patientDataJsonObject["chemoTherapyAndMedicamentation"][i]["name"].toString();
+        ui->tableWidgetChemoAndMeds->setItem(i, 1, new QTableWidgetItem(nameString));
+
+        // Dose
+        QString doseString = patientDataJsonObject["chemoTherapyAndMedicamentation"][i]["dose"].toString();
+        ui->tableWidgetChemoAndMeds->setItem(i, 2, new QTableWidgetItem(doseString));
+
+        // Text Label
+        QCPItemText *textLabel = new QCPItemText(ui->customPlot);
+        textLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
+        textLabel->position->setType(QCPItemPosition::ptPlotCoords);
+        auto secondsSinceEpoch = QDateTime::fromString(dateString, "dd.MM.yyyy").toSecsSinceEpoch();
+        textLabel->position->setCoords(secondsSinceEpoch, leukocytesMax + 10);
+        textLabel->setText(nameString + "\n" + doseString);
+        textLabel->setPen(QPen(Qt::black));
+
+        // Arrow from text label to x-axis
+        QCPItemLine *arrow = new QCPItemLine(ui->customPlot);
+        arrow->start->setParentAnchor(textLabel->bottom);
+        arrow->end->setCoords(secondsSinceEpoch, 0);
+        arrow->setHead(QCPLineEnding::esSpikeArrow);
+    }
+
     // Plot (date axis range)
     if(bloodSamplesArraySize)
     {
@@ -175,5 +232,11 @@ void MainWindow::on_actionOpenPatientDataFile_triggered()
     ui->customPlot->rescaleAxes();
     ui->customPlot->graph()->data()->set(leukocytesGraphData);
     ui->customPlot->replot();
+}
+
+
+void MainWindow::on_pushButtonNewChemoAndMed_clicked()
+{
+    ui->tableWidgetChemoAndMeds->setRowCount(ui->tableWidgetChemoAndMeds->rowCount() + 1);
 }
 
