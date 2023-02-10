@@ -49,7 +49,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->customPlot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom | QCP::iSelectAxes | QCP::iSelectLegend | QCP::iSelectPlottables);
 
     ui->customPlot->xAxis->setLabel("Date");
-    ui->customPlot->yAxis->setLabel("Leukocytes");
 
     // Configure horizontal axis to show date.
     QSharedPointer<QCPAxisTickerDateTime> dateTicker(new QCPAxisTickerDateTime);
@@ -66,6 +65,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+// Replaces all empty (null) cell contents of the passed table with an empty string.
 void MainWindow::ensureTableWidgetCellsAreNotNull(QTableWidget* tableWidget)
 {
     for(auto row = 0; row < tableWidget->rowCount(); row++)
@@ -78,6 +78,194 @@ void MainWindow::ensureTableWidgetCellsAreNotNull(QTableWidget* tableWidget)
             }
         }
     }
+}
+
+// (Re-)Plots the visualization.
+void MainWindow::plotVisualization()
+{
+    // Clear everything before (re)plotting.
+    ui->customPlot->clearGraphs();
+    ui->customPlot->clearItems();
+    ui->customPlot->clearPlottables();
+    ui->customPlot->clearFocus();
+    ui->customPlot->clearMask();
+
+    QString yAxisLabel;
+
+    if(ui->checkBoxVisualizationShowLeukocytes->isChecked())
+    {
+        yAxisLabel = yAxisLabel + ", Leukocytes [Giga/l]";
+    }
+
+    if(ui->checkBoxVisualizationShowErythrocytes->isChecked())
+    {
+        yAxisLabel = yAxisLabel + ", Erythrocytes [Tera / l]";
+    }
+
+    if(ui->checkBoxVisualizationShowHemoglobin->isChecked())
+    {
+        yAxisLabel = yAxisLabel + ", Hemoglobin [g/dl]";
+    }
+
+    if(ui->checkBoxVisualizationShowThrombocytes->isChecked())
+    {
+        yAxisLabel = yAxisLabel + ", Thrombocytes [Giga/l]";
+    }
+
+    // Remove leading ", "
+    yAxisLabel.remove(0, 2);
+
+    ui->customPlot->yAxis->setLabel(yAxisLabel);
+
+    auto bloodSamplesCount = ui->tableWidgetBloodSamples->rowCount();
+    double yAxisMax = 0.0;
+
+    for(auto column = 1; column < 5; column++)
+    {
+        ui->customPlot->addGraph();
+        ui->customPlot->graph(column - 1)->setLineStyle(QCPGraph::lsLine);
+
+        if(column == 1)
+        {
+            if(!ui->checkBoxVisualizationShowLeukocytes->isChecked())
+            {
+                continue;
+            }
+
+            ui->customPlot->graph(column - 1)->setPen(QPen(Qt::blue));
+        }
+        else if(column == 2)
+        {
+            if(!ui->checkBoxVisualizationShowErythrocytes->isChecked())
+            {
+                continue;
+            }
+
+            ui->customPlot->graph(column - 1)->setPen(QPen(Qt::red));
+        }
+        else if(column == 3)
+        {
+            if(!ui->checkBoxVisualizationShowHemoglobin->isChecked())
+            {
+                continue;
+            }
+
+            ui->customPlot->graph(column - 1)->setPen(QPen(Qt::magenta));
+        }
+        else if(column == 4)
+        {
+            if(!ui->checkBoxVisualizationShowThrombocytes->isChecked())
+            {
+                continue;
+            }
+
+            ui->customPlot->graph(column - 1)->setPen(QPen(Qt::darkYellow));
+        }
+        else
+        {
+            ui->customPlot->graph(column - 1)->setPen(QPen(Qt::black));
+        }
+
+        QVector<QCPGraphData> graphData;
+
+        for(auto bloodSampleIndex = 0; bloodSampleIndex < bloodSamplesCount; bloodSampleIndex++)
+        {
+            // Ignore empty cells.
+            if(ui->tableWidgetBloodSamples->item(bloodSampleIndex, column)->text() != "")
+            {
+                QCPGraphData graphPoint;
+
+                graphPoint.key = QDateTime::fromString(ui->tableWidgetBloodSamples->item(bloodSampleIndex, 0)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
+                graphPoint.value = ui->tableWidgetBloodSamples->item(bloodSampleIndex, column)->text().toDouble();
+
+                graphData.append(graphPoint);
+
+                if(graphPoint.key > yAxisMax)
+                {
+                    yAxisMax = graphPoint.key;
+                }
+            }
+        }
+
+        ui->customPlot->graph(column - 1)->data()->set(graphData);
+    }
+
+    // Plot (date axis range)
+    if(bloodSamplesCount)
+    {
+        double firstBloodSampleDateSecsSinceEpoch = QDateTime::fromString(ui->tableWidgetBloodSamples->item(0, 0)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
+        double lastBloodSampleDateSecsSinceEpoch = QDateTime::fromString(ui->tableWidgetBloodSamples->item(bloodSamplesCount - 1, 0)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
+        ui->customPlot->xAxis->setRange(firstBloodSampleDateSecsSinceEpoch - 24*3600, lastBloodSampleDateSecsSinceEpoch + 24*3600);
+    }
+
+    ui->customPlot->yAxis->setRange(0, yAxisMax);
+
+    auto chemoAndMedsCount = ui->tableWidgetChemoAndMeds->rowCount();
+
+    for(auto i = 0; i < chemoAndMedsCount; i++)
+    {
+        // Text Label
+        QCPItemText *textLabel = new QCPItemText(ui->customPlot);
+        textLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
+        textLabel->position->setType(QCPItemPosition::ptPlotCoords);
+        auto secondsSinceEpoch = QDateTime::fromString(ui->tableWidgetChemoAndMeds->item(i, 0)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
+
+        // Try to find a position for the label, it should be placed on top of the highest graph.
+        // For this, iterate through all graphs and their respective data points.
+
+        double yPositionLabel = 0.0;
+
+        for(auto graphIndex = 0; graphIndex < ui->customPlot->graphCount(); graphIndex++)
+        {
+            for(auto dataPointIndex = 0; dataPointIndex < ui->customPlot->graph(graphIndex)->dataCount(); dataPointIndex++)
+            {
+                auto currentDataPointSecondsSinceEpoch = ui->customPlot->graph(graphIndex)->data()->at(dataPointIndex)->mainKey();
+
+                double nextDataPointSecondsSinceEpoch = 0.0;
+
+                if(dataPointIndex < (ui->customPlot->graph(graphIndex)->dataCount() - 1))
+                {
+                    nextDataPointSecondsSinceEpoch = ui->customPlot->graph(graphIndex)->data()->at(dataPointIndex + 1)->mainKey();
+                }
+
+                double previousDataPointSecondsSinceEpoch = 0.0;
+
+                if(dataPointIndex > 0)
+                {
+                    previousDataPointSecondsSinceEpoch = ui->customPlot->graph(graphIndex)->data()->at(dataPointIndex - 1)->mainKey();
+                }
+
+                // If the graph has a data point at the label's date, get the belonging value.
+                if(currentDataPointSecondsSinceEpoch == secondsSinceEpoch)
+                {
+                    yPositionLabel = std::max(yPositionLabel,
+                                              ui->customPlot->graph(graphIndex)->data()->at(dataPointIndex)->mainValue());
+                    break;
+                }
+                // If the graph only has data points before and after the label's date, get the larger of both.
+                else if(previousDataPointSecondsSinceEpoch < secondsSinceEpoch && nextDataPointSecondsSinceEpoch > secondsSinceEpoch)
+                {
+                    yPositionLabel = std::max(yPositionLabel,
+                                              std::max(ui->customPlot->graph(graphIndex)->data()->at(dataPointIndex - 1)->mainValue(),
+                                              ui->customPlot->graph(graphIndex)->data()->at(dataPointIndex + 1)->mainValue()));
+                    break;
+                }
+            }
+        }
+
+        textLabel->position->setCoords(secondsSinceEpoch, yPositionLabel);
+        textLabel->setText(ui->tableWidgetChemoAndMeds->item(i, 1)->text() + "\n" + ui->tableWidgetChemoAndMeds->item(i, 2)->text());
+        textLabel->setPen(QPen(Qt::black));
+
+        // Arrow from text label to x-axis
+        QCPItemLine *arrow = new QCPItemLine(ui->customPlot);
+        arrow->start->setParentAnchor(textLabel->bottom);
+        arrow->end->setCoords(secondsSinceEpoch, 0);
+        arrow->setHead(QCPLineEnding::esSpikeArrow);
+    }
+
+    ui->customPlot->rescaleAxes();
+    ui->customPlot->replot();
 }
 
 void MainWindow::on_pushButtonNewBloodSample_clicked()
@@ -198,13 +386,6 @@ void MainWindow::on_actionOpenPatientDataFile_triggered()
 
     ui->tableWidgetBloodSamples->setRowCount(bloodSamplesArraySize);
 
-    QVector<QCPGraphData> leukocytesGraphData(bloodSamplesArraySize);
-    ui->customPlot->addGraph();
-    ui->customPlot->graph()->setLineStyle(QCPGraph::lsLine);
-    ui->customPlot->graph()->setPen(QPen(Qt::blue));
-
-    double leukocytesMax = 0.0;
-
     for(auto i = 0; i < bloodSamplesArraySize; i++)
     {
         // Date
@@ -220,13 +401,6 @@ void MainWindow::on_actionOpenPatientDataFile_triggered()
         {
             double leukocytes = patientDataJsonObject["bloodSamples"][i]["leukocytes"].toDouble();
             ui->tableWidgetBloodSamples->setItem(i, 1, new QTableWidgetItem(QString::number(leukocytes)));
-            leukocytesGraphData[i].key = QDateTime::fromString(dateString, "dd.MM.yyyy").toSecsSinceEpoch();
-            leukocytesGraphData[i].value = leukocytes;
-
-            if(leukocytes > leukocytesMax)
-            {
-                leukocytesMax = leukocytes;
-            }
         }
         else if(patientDataJsonObject["bloodSamples"][i]["leukocytes"].isString())
         {
@@ -284,40 +458,38 @@ void MainWindow::on_actionOpenPatientDataFile_triggered()
         // Dose
         QString doseString = patientDataJsonObject["chemoTherapyAndMedicamentation"][i]["dose"].toString();
         ui->tableWidgetChemoAndMeds->setItem(i, 2, new QTableWidgetItem(doseString));
-
-        // Text Label
-        QCPItemText *textLabel = new QCPItemText(ui->customPlot);
-        textLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-        textLabel->position->setType(QCPItemPosition::ptPlotCoords);
-        auto secondsSinceEpoch = QDateTime::fromString(dateString, "dd.MM.yyyy").toSecsSinceEpoch();
-        textLabel->position->setCoords(secondsSinceEpoch, leukocytesMax + 10);
-        textLabel->setText(nameString + "\n" + doseString);
-        textLabel->setPen(QPen(Qt::black));
-
-        // Arrow from text label to x-axis
-        QCPItemLine *arrow = new QCPItemLine(ui->customPlot);
-        arrow->start->setParentAnchor(textLabel->bottom);
-        arrow->end->setCoords(secondsSinceEpoch, 0);
-        arrow->setHead(QCPLineEnding::esSpikeArrow);
     }
 
-    // Plot (date axis range)
-    if(bloodSamplesArraySize)
-    {
-        double firstBloodSampleDateSecsSinceEpoch = QDateTime::fromString(patientDataJsonObject["bloodSamples"][0]["date"].toString(), "dd.MM.yyyy").toSecsSinceEpoch();
-        double lastBloodSampleDateSecsSinceEpoch = QDateTime::fromString(patientDataJsonObject["bloodSamples"][bloodSamplesArraySize - 1]["date"].toString(), "dd.MM.yyyy").toSecsSinceEpoch();
-        ui->customPlot->xAxis->setRange(firstBloodSampleDateSecsSinceEpoch - 24*3600, lastBloodSampleDateSecsSinceEpoch + 24*3600);
-    }
-
-    ui->customPlot->yAxis->setRange(0, leukocytesMax);
-    ui->customPlot->rescaleAxes();
-    ui->customPlot->graph()->data()->set(leukocytesGraphData);
-    ui->customPlot->replot();
+    plotVisualization();
 }
 
 
 void MainWindow::on_pushButtonNewChemoAndMed_clicked()
 {
     ui->tableWidgetChemoAndMeds->setRowCount(ui->tableWidgetChemoAndMeds->rowCount() + 1);
+}
+
+
+void MainWindow::on_checkBoxVisualizationShowLeukocytes_stateChanged(int arg1)
+{
+    plotVisualization();
+}
+
+
+void MainWindow::on_checkBoxVisualizationShowErythrocytes_stateChanged(int arg1)
+{
+    plotVisualization();
+}
+
+
+void MainWindow::on_checkBoxVisualizationShowHemoglobin_stateChanged(int arg1)
+{
+    plotVisualization();
+}
+
+
+void MainWindow::on_checkBoxVisualizationShowThrombocytes_stateChanged(int arg1)
+{
+    plotVisualization();
 }
 

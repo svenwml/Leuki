@@ -25,8 +25,17 @@ private slots:
 
     void on_pushButtonNewChemoAndMed_clicked();
 
+    void on_checkBoxVisualizationShowLeukocytes_stateChanged(int arg1);
+
+    void on_checkBoxVisualizationShowErythrocytes_stateChanged(int arg1);
+
+    void on_checkBoxVisualizationShowHemoglobin_stateChanged(int arg1);
+
+    void on_checkBoxVisualizationShowThrombocytes_stateChanged(int arg1);
+
 private:
     Ui::MainWindow *ui;
     void ensureTableWidgetCellsAreNotNull(QTableWidget*);
+    void plotVisualization();
 };
 #endif // MAINWINDOW_H
