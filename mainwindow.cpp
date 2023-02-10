@@ -124,6 +124,7 @@ void MainWindow::plotVisualization()
     {
         ui->customPlot->addGraph();
         ui->customPlot->graph(column - 1)->setLineStyle(QCPGraph::lsLine);
+        ui->customPlot->graph(column - 1)->setScatterStyle(QCPScatterStyle::ssStar);
 
         if(column == 1)
         {
