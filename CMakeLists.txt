@@ -24,6 +24,7 @@ set(PROJECT_SOURCES
         mainwindow.h
         mainwindow.ui
         qcustomplot/qcustomplot.cpp
+        qcustomplot/qcustomplot.h
         ${TS_FILES}
 )
 
