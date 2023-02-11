@@ -33,6 +33,8 @@ private slots:
 
     void on_checkBoxVisualizationShowThrombocytes_stateChanged(int arg1);
 
+    void on_checkBoxVisualizationShowMedicamentationAndChemoTherapy_stateChanged(int arg1);
+
 private:
     Ui::MainWindow *ui;
     void ensureTableWidgetCellsAreNotNull(QTableWidget*);

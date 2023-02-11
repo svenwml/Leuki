@@ -201,68 +201,71 @@ void MainWindow::plotVisualization()
 
     ui->customPlot->yAxis->setRange(0, yAxisMax);
 
-    auto chemoAndMedsCount = ui->tableWidgetChemoAndMeds->rowCount();
-
-    for(auto i = 0; i < chemoAndMedsCount; i++)
+    if(ui->checkBoxVisualizationShowMedicamentationAndChemoTherapy->isChecked())
     {
-        // Text Label
-        QCPItemText *textLabel = new QCPItemText(ui->customPlot);
-        textLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-        textLabel->position->setType(QCPItemPosition::ptPlotCoords);
-        auto secondsSinceEpoch = QDateTime::fromString(ui->tableWidgetChemoAndMeds->item(i, 0)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
+        auto chemoAndMedsCount = ui->tableWidgetChemoAndMeds->rowCount();
 
-        // Try to find a position for the label, it should be placed on top of the highest graph.
-        // For this, iterate through all graphs and their respective data points.
-
-        double yPositionLabel = 0.0;
-
-        for(auto graphIndex = 0; graphIndex < ui->customPlot->graphCount(); graphIndex++)
+        for(auto i = 0; i < chemoAndMedsCount; i++)
         {
-            for(auto dataPointIndex = 0; dataPointIndex < ui->customPlot->graph(graphIndex)->dataCount(); dataPointIndex++)
+            // Text Label
+            QCPItemText *textLabel = new QCPItemText(ui->customPlot);
+            textLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
+            textLabel->position->setType(QCPItemPosition::ptPlotCoords);
+            auto secondsSinceEpoch = QDateTime::fromString(ui->tableWidgetChemoAndMeds->item(i, 0)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
+
+            // Try to find a position for the label, it should be placed on top of the highest graph.
+            // For this, iterate through all graphs and their respective data points.
+
+            double yPositionLabel = 0.0;
+
+            for(auto graphIndex = 0; graphIndex < ui->customPlot->graphCount(); graphIndex++)
             {
-                auto currentDataPointSecondsSinceEpoch = ui->customPlot->graph(graphIndex)->data()->at(dataPointIndex)->mainKey();
-
-                double nextDataPointSecondsSinceEpoch = 0.0;
-
-                if(dataPointIndex < (ui->customPlot->graph(graphIndex)->dataCount() - 1))
+                for(auto dataPointIndex = 0; dataPointIndex < ui->customPlot->graph(graphIndex)->dataCount(); dataPointIndex++)
                 {
-                    nextDataPointSecondsSinceEpoch = ui->customPlot->graph(graphIndex)->data()->at(dataPointIndex + 1)->mainKey();
-                }
+                    auto currentDataPointSecondsSinceEpoch = ui->customPlot->graph(graphIndex)->data()->at(dataPointIndex)->mainKey();
 
-                double previousDataPointSecondsSinceEpoch = 0.0;
+                    double nextDataPointSecondsSinceEpoch = 0.0;
 
-                if(dataPointIndex > 0)
-                {
-                    previousDataPointSecondsSinceEpoch = ui->customPlot->graph(graphIndex)->data()->at(dataPointIndex - 1)->mainKey();
-                }
+                    if(dataPointIndex < (ui->customPlot->graph(graphIndex)->dataCount() - 1))
+                    {
+                        nextDataPointSecondsSinceEpoch = ui->customPlot->graph(graphIndex)->data()->at(dataPointIndex + 1)->mainKey();
+                    }
 
-                // If the graph has a data point at the label's date, get the belonging value.
-                if(currentDataPointSecondsSinceEpoch == secondsSinceEpoch)
-                {
-                    yPositionLabel = std::max(yPositionLabel,
-                                              ui->customPlot->graph(graphIndex)->data()->at(dataPointIndex)->mainValue());
-                    break;
-                }
-                // If the graph only has data points before and after the label's date, get the larger of both.
-                else if(previousDataPointSecondsSinceEpoch < secondsSinceEpoch && nextDataPointSecondsSinceEpoch > secondsSinceEpoch)
-                {
-                    yPositionLabel = std::max(yPositionLabel,
-                                              std::max(ui->customPlot->graph(graphIndex)->data()->at(dataPointIndex - 1)->mainValue(),
-                                              ui->customPlot->graph(graphIndex)->data()->at(dataPointIndex + 1)->mainValue()));
-                    break;
+                    double previousDataPointSecondsSinceEpoch = 0.0;
+
+                    if(dataPointIndex > 0)
+                    {
+                        previousDataPointSecondsSinceEpoch = ui->customPlot->graph(graphIndex)->data()->at(dataPointIndex - 1)->mainKey();
+                    }
+
+                    // If the graph has a data point at the label's date, get the belonging value.
+                    if(currentDataPointSecondsSinceEpoch == secondsSinceEpoch)
+                    {
+                        yPositionLabel = std::max(yPositionLabel,
+                                                  ui->customPlot->graph(graphIndex)->data()->at(dataPointIndex)->mainValue());
+                        break;
+                    }
+                    // If the graph only has data points before and after the label's date, get the larger of both.
+                    else if(previousDataPointSecondsSinceEpoch < secondsSinceEpoch && nextDataPointSecondsSinceEpoch > secondsSinceEpoch)
+                    {
+                        yPositionLabel = std::max(yPositionLabel,
+                                                  std::max(ui->customPlot->graph(graphIndex)->data()->at(dataPointIndex - 1)->mainValue(),
+                                                  ui->customPlot->graph(graphIndex)->data()->at(dataPointIndex + 1)->mainValue()));
+                        break;
+                    }
                 }
             }
+
+            textLabel->position->setCoords(secondsSinceEpoch, yPositionLabel);
+            textLabel->setText(ui->tableWidgetChemoAndMeds->item(i, 1)->text() + "\n" + ui->tableWidgetChemoAndMeds->item(i, 2)->text());
+            textLabel->setPen(QPen(Qt::black));
+
+            // Arrow from text label to x-axis
+            QCPItemLine *arrow = new QCPItemLine(ui->customPlot);
+            arrow->start->setParentAnchor(textLabel->bottom);
+            arrow->end->setCoords(secondsSinceEpoch, 0);
+            arrow->setHead(QCPLineEnding::esSpikeArrow);
         }
-
-        textLabel->position->setCoords(secondsSinceEpoch, yPositionLabel);
-        textLabel->setText(ui->tableWidgetChemoAndMeds->item(i, 1)->text() + "\n" + ui->tableWidgetChemoAndMeds->item(i, 2)->text());
-        textLabel->setPen(QPen(Qt::black));
-
-        // Arrow from text label to x-axis
-        QCPItemLine *arrow = new QCPItemLine(ui->customPlot);
-        arrow->start->setParentAnchor(textLabel->bottom);
-        arrow->end->setCoords(secondsSinceEpoch, 0);
-        arrow->setHead(QCPLineEnding::esSpikeArrow);
     }
 
     ui->customPlot->rescaleAxes();
@@ -490,6 +493,12 @@ void MainWindow::on_checkBoxVisualizationShowHemoglobin_stateChanged(int arg1)
 
 
 void MainWindow::on_checkBoxVisualizationShowThrombocytes_stateChanged(int arg1)
+{
+    plotVisualization();
+}
+
+
+void MainWindow::on_checkBoxVisualizationShowMedicamentationAndChemoTherapy_stateChanged(int arg1)
 {
     plotVisualization();
 }
