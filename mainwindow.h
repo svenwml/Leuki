@@ -20,7 +20,7 @@ public:
 private slots:
     void on_pushButtonNewBloodSample_clicked();
 
-    void savePatientDataFileAs();
+    void on_actionSettingsSaveAs_triggered();
 
     void on_actionOpenPatientDataFile_triggered();
 

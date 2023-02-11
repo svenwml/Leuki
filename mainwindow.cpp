@@ -12,8 +12,6 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    connect(ui->actionSettingsSaveAs, SIGNAL(triggered()), this, SLOT(savePatientDataFileAs()));
-
     // Load settings file first.
 
     QFile settingsFile;
@@ -502,7 +500,7 @@ void MainWindow::on_pushButtonNewBloodSample_clicked()
     ui->tableWidgetBloodSamples->setRowCount(ui->tableWidgetBloodSamples->rowCount() + 1);
 }
 
-void MainWindow::savePatientDataFileAs()
+void MainWindow::on_actionSettingsSaveAs_triggered()
 {
     QFileInfo patientDataFileInfo(m_previousPatientDataFileName);
 
