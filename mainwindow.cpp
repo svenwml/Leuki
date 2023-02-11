@@ -504,7 +504,18 @@ void MainWindow::on_pushButtonNewBloodSample_clicked()
 
 void MainWindow::savePatientDataFileAs()
 {
-    QString patientDataFileName = QFileDialog::getSaveFileName(this, tr("Save File"), "", tr("JSON (*.json)"));
+    QFileInfo patientDataFileInfo(m_previousPatientDataFileName);
+
+    QString patientDataFileName = QFileDialog::getSaveFileName(this,
+                                                               tr("Save File"),
+                                                               patientDataFileInfo.absolutePath(),
+                                                               tr("JSON (*.json)"));
+
+    // If the file save dialog has been cancelled by the user, file name is "", so length is 0.
+    if(!patientDataFileName.length())
+    {
+        return;
+    }
 
     // Collect and write all data to the selected patient data file.
 
@@ -600,7 +611,11 @@ void MainWindow::on_actionOpenPatientDataFile_triggered()
                                                     patientDataFileInfo.absolutePath(),
                                                     tr("JSON (*.json)"));
 
-    loadPatientDataFile(patientDataFileName);
+    // If the file open dialog has been cancelled by the user, file name is "", so length is 0.
+    if(patientDataFileName.length())
+    {
+        loadPatientDataFile(patientDataFileName);
+    }
 }
 
 
