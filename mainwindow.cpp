@@ -33,14 +33,21 @@ MainWindow::MainWindow(QWidget *parent)
     QJsonDocument settingsJsonDocument = QJsonDocument::fromJson(settingsString.toUtf8());
     QJsonObject settingsJsonObject = settingsJsonDocument.object();
 
-    if(settingsJsonObject["previousPatientDataFileDirectory"].isString())
+    if(settingsJsonObject["previousPatientDataFileName"].isString())
     {
-        m_previousPatientDataFileDirectory = settingsJsonObject["previousPatientDataFileDirectory"].toString();
+        m_previousPatientDataFileName = settingsJsonObject["previousPatientDataFileName"].toString();
     }
 
     if(settingsJsonObject["activeTabIndex"].isDouble())
     {
         ui->tabWidget->setCurrentIndex(settingsJsonObject["activeTabIndex"].toInt());
+    }
+
+    if(settingsJsonObject["autoLoadPatientDataFileOnStartup"].isBool())
+    {
+        SettingsWindow::settings_t settings;
+        settings.autoLoadPatientDataFileOnStartup = settingsJsonObject["autoLoadPatientDataFileOnStartup"].toBool();
+        m_settingsWindow.setSettings(settings);
     }
 
     if(settingsJsonObject["visualizationShowLeukocytes"].isBool())
@@ -131,12 +138,123 @@ MainWindow::MainWindow(QWidget *parent)
     // Initialize with current date.
     double currentSecondsSinceEpoch = QDateTime::currentSecsSinceEpoch();
     ui->customPlot->xAxis->setRange(currentSecondsSinceEpoch, currentSecondsSinceEpoch + 1);
+
+    // Auto-load previously opened patient data file if this setting is activated and a valid
+    // previous file name exists.
+    if(m_settingsWindow.getSettings().autoLoadPatientDataFileOnStartup && QFile::exists(m_previousPatientDataFileName))
+    {
+        loadPatientDataFile(m_previousPatientDataFileName);
+    }
+
 }
 
 MainWindow::~MainWindow()
 {
     saveSettingsFile();
     delete ui;
+}
+
+// Loads the patient data file, fills all forms and triggers visualization plot.
+void MainWindow::loadPatientDataFile(QString& patientDataFileName)
+{
+    ui->labelPatientDataFile->setText(patientDataFileName);
+
+    // Store the file name so it can be written to the settings file on program exit
+    // and be restored at the next program execution.
+    m_previousPatientDataFileName = patientDataFileName;
+
+    QFile patientDataFile;
+    patientDataFile.setFileName(patientDataFileName);
+    patientDataFile.open(QIODevice::ReadOnly | QIODevice::Text);
+    QString patientDataString = patientDataFile.readAll();
+    patientDataFile.close();
+    QJsonDocument patientDataJsonDocument = QJsonDocument::fromJson(patientDataString.toUtf8());
+    QJsonObject patientDataJsonObject = patientDataJsonDocument.object();
+
+    // Fill forms with given patient data.
+
+    ui->lineEditPatientName->setText(patientDataJsonObject["name"].toString());
+    ui->lineEditPatientDateOfBirth->setText(patientDataJsonObject["dateOfBirth"].toString());
+
+    auto bloodSamplesArraySize = patientDataJsonObject["bloodSamples"].toArray().size();
+
+    ui->tableWidgetBloodSamples->setRowCount(bloodSamplesArraySize);
+
+    for(auto i = 0; i < bloodSamplesArraySize; i++)
+    {
+        // Date
+        QString dateString = patientDataJsonObject["bloodSamples"][i]["date"].toString();
+        ui->tableWidgetBloodSamples->setItem(i, 0, new QTableWidgetItem(dateString));
+
+        // We expect the values to be of type double. If not, user may have entered nothing so we expect an
+        // empty string so we ignore the value for the graph.
+
+        // Leukocytes
+
+        if(patientDataJsonObject["bloodSamples"][i]["leukocytes"].isDouble())
+        {
+            double leukocytes = patientDataJsonObject["bloodSamples"][i]["leukocytes"].toDouble();
+            ui->tableWidgetBloodSamples->setItem(i, 1, new QTableWidgetItem(QString::number(leukocytes)));
+        }
+        else if(patientDataJsonObject["bloodSamples"][i]["leukocytes"].isString())
+        {
+            ui->tableWidgetBloodSamples->setItem(i, 1, new QTableWidgetItem(patientDataJsonObject["bloodSamples"][i]["leukocytes"].toString()));
+        }
+
+        // Erythrocytes
+
+        if(patientDataJsonObject["bloodSamples"][i]["erythrocytes"].isDouble())
+        {
+            ui->tableWidgetBloodSamples->setItem(i, 2, new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["erythrocytes"].toDouble())));
+        }
+        else if(patientDataJsonObject["bloodSamples"][i]["erythrocytes"].isString())
+        {
+            ui->tableWidgetBloodSamples->setItem(i, 2, new QTableWidgetItem(patientDataJsonObject["bloodSamples"][i]["erythrocytes"].toString()));
+        }
+
+        // Hemoglobin
+
+        if(patientDataJsonObject["bloodSamples"][i]["hemoglobin"].isDouble())
+        {
+            ui->tableWidgetBloodSamples->setItem(i, 3, new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["hemoglobin"].toDouble())));
+        }
+        else if(patientDataJsonObject["bloodSamples"][i]["hemoglobin"].isString())
+        {
+            ui->tableWidgetBloodSamples->setItem(i, 3, new QTableWidgetItem(patientDataJsonObject["bloodSamples"][i]["hemoglobin"].toString()));
+        }
+
+        // Thrombocytes
+
+        if(patientDataJsonObject["bloodSamples"][i]["thrombocytes"].isDouble())
+        {
+            ui->tableWidgetBloodSamples->setItem(i, 4, new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["thrombocytes"].toDouble())));
+        }
+        else if(patientDataJsonObject["bloodSamples"][i]["thrombocytes"].isString())
+        {
+            ui->tableWidgetBloodSamples->setItem(i, 4, new QTableWidgetItem(patientDataJsonObject["bloodSamples"][i]["thrombocytes"].toString()));
+        }
+    }
+
+    auto chemoAndMedsArraySize = patientDataJsonObject["chemoTherapyAndMedicamentation"].toArray().size();
+
+    ui->tableWidgetChemoAndMeds->setRowCount(chemoAndMedsArraySize);
+
+    for(auto i = 0; i < chemoAndMedsArraySize; i++)
+    {
+        // Date
+        QString dateString = patientDataJsonObject["chemoTherapyAndMedicamentation"][i]["date"].toString();
+        ui->tableWidgetChemoAndMeds->setItem(i, 0, new QTableWidgetItem(dateString));
+
+        // Name
+        QString nameString = patientDataJsonObject["chemoTherapyAndMedicamentation"][i]["name"].toString();
+        ui->tableWidgetChemoAndMeds->setItem(i, 1, new QTableWidgetItem(nameString));
+
+        // Dose
+        QString doseString = patientDataJsonObject["chemoTherapyAndMedicamentation"][i]["dose"].toString();
+        ui->tableWidgetChemoAndMeds->setItem(i, 2, new QTableWidgetItem(doseString));
+    }
+
+    plotVisualization();
 }
 
 // Saves the settings file after writing the current settings.
@@ -153,8 +271,11 @@ void MainWindow::saveSettingsFile()
 
     settingsFile.open(QIODevice::WriteOnly | QIODevice::Text);
 
-    settingsJsonObject["previousPatientDataFileDirectory"] = m_previousPatientDataFileDirectory;
+    settingsJsonObject["previousPatientDataFileName"] = m_previousPatientDataFileName;
     settingsJsonObject["activeTabIndex"] = static_cast<double>(ui->tabWidget->currentIndex());
+
+    auto settings = m_settingsWindow.getSettings();
+    settingsJsonObject["autoLoadPatientDataFileOnStartup"] = settings.autoLoadPatientDataFileOnStartup;
 
     settingsJsonObject["visualizationShowLeukocytes"] = (ui->checkBoxVisualizationShowLeukocytes->checkState() == Qt::CheckState::Checked);
     settingsJsonObject["visualizationShowErythrocytes"] = (ui->checkBoxVisualizationShowErythrocytes->checkState() == Qt::CheckState::Checked);
@@ -473,109 +594,13 @@ void MainWindow::on_actionOpenPatientDataFile_triggered()
 {
     // Load patient data from patient data file.
 
+    QFileInfo patientDataFileInfo(m_previousPatientDataFileName);
+
     QString patientDataFileName = QFileDialog::getOpenFileName(this, tr("Open File"),
-                                                    m_previousPatientDataFileDirectory,
+                                                    patientDataFileInfo.absolutePath(),
                                                     tr("JSON (*.json)"));
 
-    ui->labelPatientDataFile->setText(patientDataFileName);
-
-    // Store the file path so it can be written to the settings file on program exit
-    // and be restored at the next program execution.
-    QFileInfo patientDataFileInfo(patientDataFileName);
-    m_previousPatientDataFileDirectory = patientDataFileInfo.absolutePath();
-
-    QFile patientDataFile;
-    patientDataFile.setFileName(patientDataFileName);
-    patientDataFile.open(QIODevice::ReadOnly | QIODevice::Text);
-    QString patientDataString = patientDataFile.readAll();
-    patientDataFile.close();
-    QJsonDocument patientDataJsonDocument = QJsonDocument::fromJson(patientDataString.toUtf8());
-    QJsonObject patientDataJsonObject = patientDataJsonDocument.object();
-
-    // Fill forms with given patient data.
-
-    ui->lineEditPatientName->setText(patientDataJsonObject["name"].toString());
-    ui->lineEditPatientDateOfBirth->setText(patientDataJsonObject["dateOfBirth"].toString());
-
-    auto bloodSamplesArraySize = patientDataJsonObject["bloodSamples"].toArray().size();
-
-    ui->tableWidgetBloodSamples->setRowCount(bloodSamplesArraySize);
-
-    for(auto i = 0; i < bloodSamplesArraySize; i++)
-    {
-        // Date
-        QString dateString = patientDataJsonObject["bloodSamples"][i]["date"].toString();
-        ui->tableWidgetBloodSamples->setItem(i, 0, new QTableWidgetItem(dateString));
-
-        // We expect the values to be of type double. If not, user may have entered nothing so we expect an
-        // empty string so we ignore the value for the graph.
-
-        // Leukocytes
-
-        if(patientDataJsonObject["bloodSamples"][i]["leukocytes"].isDouble())
-        {
-            double leukocytes = patientDataJsonObject["bloodSamples"][i]["leukocytes"].toDouble();
-            ui->tableWidgetBloodSamples->setItem(i, 1, new QTableWidgetItem(QString::number(leukocytes)));
-        }
-        else if(patientDataJsonObject["bloodSamples"][i]["leukocytes"].isString())
-        {
-            ui->tableWidgetBloodSamples->setItem(i, 1, new QTableWidgetItem(patientDataJsonObject["bloodSamples"][i]["leukocytes"].toString()));
-        }
-
-        // Erythrocytes
-
-        if(patientDataJsonObject["bloodSamples"][i]["erythrocytes"].isDouble())
-        {
-            ui->tableWidgetBloodSamples->setItem(i, 2, new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["erythrocytes"].toDouble())));
-        }
-        else if(patientDataJsonObject["bloodSamples"][i]["erythrocytes"].isString())
-        {
-            ui->tableWidgetBloodSamples->setItem(i, 2, new QTableWidgetItem(patientDataJsonObject["bloodSamples"][i]["erythrocytes"].toString()));
-        }
-
-        // Hemoglobin
-
-        if(patientDataJsonObject["bloodSamples"][i]["hemoglobin"].isDouble())
-        {
-            ui->tableWidgetBloodSamples->setItem(i, 3, new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["hemoglobin"].toDouble())));
-        }
-        else if(patientDataJsonObject["bloodSamples"][i]["hemoglobin"].isString())
-        {
-            ui->tableWidgetBloodSamples->setItem(i, 3, new QTableWidgetItem(patientDataJsonObject["bloodSamples"][i]["hemoglobin"].toString()));
-        }
-
-        // Thrombocytes
-
-        if(patientDataJsonObject["bloodSamples"][i]["thrombocytes"].isDouble())
-        {
-            ui->tableWidgetBloodSamples->setItem(i, 4, new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["thrombocytes"].toDouble())));
-        }
-        else if(patientDataJsonObject["bloodSamples"][i]["thrombocytes"].isString())
-        {
-            ui->tableWidgetBloodSamples->setItem(i, 4, new QTableWidgetItem(patientDataJsonObject["bloodSamples"][i]["thrombocytes"].toString()));
-        }
-    }
-
-    auto chemoAndMedsArraySize = patientDataJsonObject["chemoTherapyAndMedicamentation"].toArray().size();
-
-    ui->tableWidgetChemoAndMeds->setRowCount(chemoAndMedsArraySize);
-
-    for(auto i = 0; i < chemoAndMedsArraySize; i++)
-    {
-        // Date
-        QString dateString = patientDataJsonObject["chemoTherapyAndMedicamentation"][i]["date"].toString();
-        ui->tableWidgetChemoAndMeds->setItem(i, 0, new QTableWidgetItem(dateString));
-
-        // Name
-        QString nameString = patientDataJsonObject["chemoTherapyAndMedicamentation"][i]["name"].toString();
-        ui->tableWidgetChemoAndMeds->setItem(i, 1, new QTableWidgetItem(nameString));
-
-        // Dose
-        QString doseString = patientDataJsonObject["chemoTherapyAndMedicamentation"][i]["dose"].toString();
-        ui->tableWidgetChemoAndMeds->setItem(i, 2, new QTableWidgetItem(doseString));
-    }
-
-    plotVisualization();
+    loadPatientDataFile(patientDataFileName);
 }
 
 
@@ -612,5 +637,11 @@ void MainWindow::on_checkBoxVisualizationShowThrombocytes_stateChanged(int arg1)
 void MainWindow::on_checkBoxVisualizationShowMedicamentationAndChemoTherapy_stateChanged(int arg1)
 {
     plotVisualization();
+}
+
+
+void MainWindow::on_actionSettings_triggered()
+{
+    m_settingsWindow.show();
 }
 

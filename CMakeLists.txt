@@ -23,6 +23,9 @@ set(PROJECT_SOURCES
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
+        settingswindow.cpp
+        settingswindow.h
+        settingswindow.ui
         qcustomplot/qcustomplot.cpp
         qcustomplot/qcustomplot.h
         ${TS_FILES}

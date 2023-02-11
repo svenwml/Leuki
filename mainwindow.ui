@@ -269,6 +269,7 @@
     </property>
     <addaction name="actionOpenPatientDataFile"/>
     <addaction name="actionSettingsSaveAs"/>
+    <addaction name="actionSettings"/>
    </widget>
    <addaction name="menuLeuki"/>
   </widget>
@@ -281,6 +282,11 @@
   <action name="actionOpenPatientDataFile">
    <property name="text">
     <string>Open...</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="text">
+    <string>Settings</string>
    </property>
   </action>
  </widget>

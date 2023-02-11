@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QtWidgets/QTableWidget>
+#include "settingswindow.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -35,9 +36,13 @@ private slots:
 
     void on_checkBoxVisualizationShowMedicamentationAndChemoTherapy_stateChanged(int arg1);
 
+    void on_actionSettings_triggered();
+
 private:
     Ui::MainWindow *ui;
-    QString m_previousPatientDataFileDirectory;
+    QString m_previousPatientDataFileName;
+    SettingsWindow m_settingsWindow;
+    void loadPatientDataFile(QString&);
     void saveSettingsFile();
     void ensureTableWidgetCellsAreNotNull(QTableWidget*);
     void plotVisualization();

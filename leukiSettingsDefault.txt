@@ -1,6 +1,7 @@
 R"({
-    "previousPatientDataFileDirectory": "",
+    "previousPatientDataFileName": "",
     "activeTabIndex": 0,
+    "autoLoadPatientDataFileOnStartup": false,
     "fileVersion": "v1.0",
     "visualizationShowLeukocytes": true,
     "visualizationShowErythrocytes": true,
