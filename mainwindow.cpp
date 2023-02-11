@@ -471,6 +471,8 @@ void MainWindow::on_actionOpenPatientDataFile_triggered()
                                                     m_previousPatientDataFileDirectory,
                                                     tr("JSON (*.json)"));
 
+    ui->labelPatientDataFile->setText(patientDataFileName);
+
     // Store the file path so it can be written to the settings file on program exit
     // and be restored at the next program execution.
     QFileInfo patientDataFileInfo(patientDataFileName);

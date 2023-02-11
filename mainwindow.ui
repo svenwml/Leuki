@@ -34,7 +34,7 @@
       <property name="geometry">
        <rect>
         <x>120</x>
-        <y>10</y>
+        <y>80</y>
         <width>113</width>
         <height>16</height>
        </rect>
@@ -44,7 +44,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>10</y>
+        <y>80</y>
         <width>49</width>
         <height>16</height>
        </rect>
@@ -57,7 +57,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>30</y>
+        <y>100</y>
         <width>81</width>
         <height>16</height>
        </rect>
@@ -70,10 +70,49 @@
       <property name="geometry">
        <rect>
         <x>120</x>
-        <y>30</y>
+        <y>100</y>
         <width>113</width>
         <height>16</height>
        </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_3">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>91</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Patient Data File</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="labelPatientDataFile">
+      <property name="geometry">
+       <rect>
+        <x>120</x>
+        <y>10</y>
+        <width>671</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_4">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>50</y>
+        <width>111</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Patient Information:</string>
       </property>
      </widget>
     </widget>
