@@ -404,9 +404,9 @@ void MainWindow::plotVisualization()
 
                 graphData.append(graphPoint);
 
-                if(graphPoint.key > yAxisMax)
+                if(graphPoint.value > yAxisMax)
                 {
-                    yAxisMax = graphPoint.key;
+                    yAxisMax = graphPoint.value;
                 }
             }
         }
