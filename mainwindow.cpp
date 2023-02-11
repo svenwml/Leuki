@@ -38,6 +38,11 @@ MainWindow::MainWindow(QWidget *parent)
         m_previousPatientDataFileDirectory = settingsJsonObject["previousPatientDataFileDirectory"].toString();
     }
 
+    if(settingsJsonObject["activeTabIndex"].isDouble())
+    {
+        ui->tabWidget->setCurrentIndex(settingsJsonObject["activeTabIndex"].toInt());
+    }
+
     if(settingsJsonObject["visualizationShowLeukocytes"].isBool())
     {
         if(settingsJsonObject["visualizationShowLeukocytes"].toBool())
@@ -149,6 +154,7 @@ void MainWindow::saveSettingsFile()
     settingsFile.open(QIODevice::WriteOnly | QIODevice::Text);
 
     settingsJsonObject["previousPatientDataFileDirectory"] = m_previousPatientDataFileDirectory;
+    settingsJsonObject["activeTabIndex"] = static_cast<double>(ui->tabWidget->currentIndex());
 
     settingsJsonObject["visualizationShowLeukocytes"] = (ui->checkBoxVisualizationShowLeukocytes->checkState() == Qt::CheckState::Checked);
     settingsJsonObject["visualizationShowErythrocytes"] = (ui->checkBoxVisualizationShowErythrocytes->checkState() == Qt::CheckState::Checked);
