@@ -37,6 +37,8 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    QString m_previousPatientDataFileDirectory;
+    void saveSettingsFile();
     void ensureTableWidgetCellsAreNotNull(QTableWidget*);
     void plotVisualization();
 };

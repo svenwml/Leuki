@@ -2,6 +2,10 @@
 #include "./ui_mainwindow.h"
 #include <iostream>
 
+const char* leukiSettingsDefault =
+#include "leukiSettingsDefault.txt"
+;
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -10,25 +14,89 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->actionSettingsSaveAs, SIGNAL(triggered()), this, SLOT(savePatientDataFileAs()));
 
-//    // Load settings file first.
-//
-//    QFile settingsFile;
-//    settingsFile.setFileName(QDir::currentPath() + "/" + "leukiSettings.json");
-//    settingsFile.open(QIODevice::ReadOnly | QIODevice::Text);
-//    QString settingsString = settingsFile.readAll();
-//    settingsFile.close();
-//    QJsonDocument settingsJsonDocument = QJsonDocument::fromJson(settingsString.toUtf8());
-//    QJsonObject settingsJsonObject = settingsJsonDocument.object();
+    // Load settings file first.
 
-//    auto patientDataFileName = settingsJsonObject["patientDataFilePath"].toString();
+    QFile settingsFile;
+    settingsFile.setFileName(QDir::currentPath() + "/" + "leukiSettings.json");
 
-//    if(patientDataFileName == "")
-//    {
-//        QMessageBox messageBoxNoFileSelected;
-//        messageBoxNoFileSelected.setText("No patient data file given! Check Leuki settings file.");
-//        messageBoxNoFileSelected.exec();
-//        exit(0);
-//    }
+    // If settings file does not exist, create a new file with default settings.
+    if(!settingsFile.exists())
+    {
+        settingsFile.open(QIODevice::WriteOnly | QIODevice::Text);
+        settingsFile.write(leukiSettingsDefault);
+        settingsFile.close();
+    }
+
+    settingsFile.open(QIODevice::ReadOnly | QIODevice::Text);
+    QString settingsString = settingsFile.readAll();
+    settingsFile.close();
+    QJsonDocument settingsJsonDocument = QJsonDocument::fromJson(settingsString.toUtf8());
+    QJsonObject settingsJsonObject = settingsJsonDocument.object();
+
+    if(settingsJsonObject["previousPatientDataFileDirectory"].isString())
+    {
+        m_previousPatientDataFileDirectory = settingsJsonObject["previousPatientDataFileDirectory"].toString();
+    }
+
+    if(settingsJsonObject["visualizationShowLeukocytes"].isBool())
+    {
+        if(settingsJsonObject["visualizationShowLeukocytes"].toBool())
+        {
+            ui->checkBoxVisualizationShowLeukocytes->setCheckState(Qt::CheckState::Checked);
+        }
+        else
+        {
+            ui->checkBoxVisualizationShowLeukocytes->setCheckState(Qt::CheckState::Unchecked);
+        }
+    }
+
+    if(settingsJsonObject["visualizationShowErythrocytes"].isBool())
+    {
+        if(settingsJsonObject["visualizationShowErythrocytes"].toBool())
+        {
+            ui->checkBoxVisualizationShowErythrocytes->setCheckState(Qt::CheckState::Checked);
+        }
+        else
+        {
+            ui->checkBoxVisualizationShowErythrocytes->setCheckState(Qt::CheckState::Unchecked);
+        }
+    }
+
+    if(settingsJsonObject["visualizationShowHemoglobin"].isBool())
+    {
+        if(settingsJsonObject["visualizationShowHemoglobin"].toBool())
+        {
+            ui->checkBoxVisualizationShowHemoglobin->setCheckState(Qt::CheckState::Checked);
+        }
+        else
+        {
+            ui->checkBoxVisualizationShowHemoglobin->setCheckState(Qt::CheckState::Unchecked);
+        }
+    }
+
+    if(settingsJsonObject["visualizationShowThrombocytes"].isBool())
+    {
+        if(settingsJsonObject["visualizationShowThrombocytes"].toBool())
+        {
+            ui->checkBoxVisualizationShowThrombocytes->setCheckState(Qt::CheckState::Checked);
+        }
+        else
+        {
+            ui->checkBoxVisualizationShowThrombocytes->setCheckState(Qt::CheckState::Unchecked);
+        }
+    }
+
+    if(settingsJsonObject["visualizationShowMedicamentationAndChemoTherapy"].isBool())
+    {
+        if(settingsJsonObject["visualizationShowMedicamentationAndChemoTherapy"].toBool())
+        {
+            ui->checkBoxVisualizationShowMedicamentationAndChemoTherapy->setCheckState(Qt::CheckState::Checked);
+        }
+        else
+        {
+            ui->checkBoxVisualizationShowMedicamentationAndChemoTherapy->setCheckState(Qt::CheckState::Unchecked);
+        }
+    }
 
     // Prepare tables.
 
@@ -62,7 +130,37 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    saveSettingsFile();
     delete ui;
+}
+
+// Saves the settings file after writing the current settings.
+void MainWindow::saveSettingsFile()
+{
+    QFile settingsFile;
+    settingsFile.setFileName(QDir::currentPath() + "/" + "leukiSettings.json");
+
+    settingsFile.open(QIODevice::ReadOnly | QIODevice::Text);
+    QString settingsString = settingsFile.readAll();
+    settingsFile.close();
+    QJsonDocument settingsJsonDocument = QJsonDocument::fromJson(settingsString.toUtf8());
+    QJsonObject settingsJsonObject = settingsJsonDocument.object();
+
+    settingsFile.open(QIODevice::WriteOnly | QIODevice::Text);
+
+    settingsJsonObject["previousPatientDataFileDirectory"] = m_previousPatientDataFileDirectory;
+
+    settingsJsonObject["visualizationShowLeukocytes"] = (ui->checkBoxVisualizationShowLeukocytes->checkState() == Qt::CheckState::Checked);
+    settingsJsonObject["visualizationShowErythrocytes"] = (ui->checkBoxVisualizationShowErythrocytes->checkState() == Qt::CheckState::Checked);
+    settingsJsonObject["visualizationShowHemoglobin"] = (ui->checkBoxVisualizationShowHemoglobin->checkState() == Qt::CheckState::Checked);
+    settingsJsonObject["visualizationShowThrombocytes"] = (ui->checkBoxVisualizationShowThrombocytes->checkState() == Qt::CheckState::Checked);
+    settingsJsonObject["visualizationShowMedicamentationAndChemoTherapy"] = (ui->checkBoxVisualizationShowMedicamentationAndChemoTherapy->checkState() == Qt::CheckState::Checked);
+
+    settingsJsonDocument.setObject(settingsJsonObject);
+
+    settingsFile.write(settingsJsonDocument.toJson());
+
+    settingsFile.close();
 }
 
 // Replaces all empty (null) cell contents of the passed table with an empty string.
@@ -370,8 +468,13 @@ void MainWindow::on_actionOpenPatientDataFile_triggered()
     // Load patient data from patient data file.
 
     QString patientDataFileName = QFileDialog::getOpenFileName(this, tr("Open File"),
-                                                    "",
+                                                    m_previousPatientDataFileDirectory,
                                                     tr("JSON (*.json)"));
+
+    // Store the file path so it can be written to the settings file on program exit
+    // and be restored at the next program execution.
+    QFileInfo patientDataFileInfo(patientDataFileName);
+    m_previousPatientDataFileDirectory = patientDataFileInfo.absolutePath();
 
     QFile patientDataFile;
     patientDataFile.setFileName(patientDataFileName);

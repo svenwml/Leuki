@@ -26,6 +26,7 @@ set(PROJECT_SOURCES
         qcustomplot/qcustomplot.cpp
         qcustomplot/qcustomplot.h
         ${TS_FILES}
+        leukiSettingsDefault.txt
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

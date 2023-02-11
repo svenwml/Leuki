@@ -1,0 +1,9 @@
+R"({
+    "previousPatientDataFileDirectory": "",
+    "fileVersion": "v1.0",
+    "visualizationShowLeukocytes": true,
+    "visualizationShowErythrocytes": true,
+    "visualizationShowHemoglobin": true,
+    "visualizationShowThrombocytes": true,
+    "visualizationShowMedicamentationAndChemoTherapy": true
+})"
