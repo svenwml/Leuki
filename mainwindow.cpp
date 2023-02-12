@@ -439,49 +439,6 @@ void MainWindow::plotVisualization()
         {
             auto secondsSinceEpoch = QDateTime::fromString(ui->tableWidgetChemoAndMeds->item(i, 0)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
 
-            // Try to find a position for the label, it should be placed on top of the highest graph.
-            // For this, iterate through all graphs and their respective data points.
-
-            double yPositionLabel = 1.0;
-
-            for(auto graphIndex = 0; graphIndex < ui->customPlot->graphCount(); graphIndex++)
-            {
-                for(auto dataPointIndex = 0; dataPointIndex < ui->customPlot->graph(graphIndex)->dataCount(); dataPointIndex++)
-                {
-                    auto currentDataPointSecondsSinceEpoch = ui->customPlot->graph(graphIndex)->data()->at(dataPointIndex)->mainKey();
-
-                    double nextDataPointSecondsSinceEpoch = 0.0;
-
-                    if(dataPointIndex < (ui->customPlot->graph(graphIndex)->dataCount() - 1))
-                    {
-                        nextDataPointSecondsSinceEpoch = ui->customPlot->graph(graphIndex)->data()->at(dataPointIndex + 1)->mainKey();
-                    }
-
-                    double previousDataPointSecondsSinceEpoch = 0.0;
-
-                    if(dataPointIndex > 0)
-                    {
-                        previousDataPointSecondsSinceEpoch = ui->customPlot->graph(graphIndex)->data()->at(dataPointIndex - 1)->mainKey();
-                    }
-
-                    // If the graph has a data point at the label's date, get the belonging value.
-                    if(currentDataPointSecondsSinceEpoch == secondsSinceEpoch)
-                    {
-                        yPositionLabel = std::max(yPositionLabel,
-                                                  ui->customPlot->graph(graphIndex)->data()->at(dataPointIndex)->mainValue());
-                        break;
-                    }
-                    // If the graph only has data points before and after the label's date, get the larger of both.
-                    else if(previousDataPointSecondsSinceEpoch < secondsSinceEpoch && nextDataPointSecondsSinceEpoch > secondsSinceEpoch)
-                    {
-                        yPositionLabel = std::max(yPositionLabel,
-                                                  std::max(ui->customPlot->graph(graphIndex)->data()->at(dataPointIndex - 1)->mainValue(),
-                                                  ui->customPlot->graph(graphIndex)->data()->at(dataPointIndex + 1)->mainValue()));
-                        break;
-                    }
-                }
-            }
-
             // Text Label
             QCPItemText *textLabel = new QCPItemText(ui->customPlot);
             textLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
