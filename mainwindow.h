@@ -45,11 +45,17 @@ private slots:
 
     void on_tabWidget_currentChanged(int index);
 
+    void on_lineEditPatientName_textEdited(const QString &arg1);
+
+    void on_lineEditPatientDateOfBirth_textEdited(const QString &arg1);
+
 private:
     Ui::MainWindow *ui;
     QString m_previousPatientDataFileName;
     SettingsWindow m_settingsWindow;
     bool m_tableDataChangedSinceLastVisualizationPlot;
+    bool m_patientDataChangedSinceLastSave;
+    bool m_loadingPatientDataInProgress;
     void loadPatientDataFile(QString&);
     void saveSettingsFile();
     void ensureTableWidgetCellsAreNotNull(QTableWidget*);

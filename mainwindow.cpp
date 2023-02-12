@@ -13,6 +13,8 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , m_tableDataChangedSinceLastVisualizationPlot(false)
+    , m_patientDataChangedSinceLastSave(false)
+    , m_loadingPatientDataInProgress(false)
 {
     ui->setupUi(this);
 
@@ -144,6 +146,19 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    if(m_patientDataChangedSinceLastSave)
+    {
+        auto ret = QMessageBox::question(this,
+                                         "Leuki - Patient Data Changed",
+                                         "Patient data has been changed since last save! Save before quitting?",
+                                         QMessageBox::Yes|QMessageBox::No);
+
+        if (ret == QMessageBox::Yes)
+        {
+            on_actionSettingsSaveAs_triggered();
+        }
+    }
+
     saveSettingsFile();
     delete ui;
 }
@@ -163,6 +178,8 @@ void MainWindow::initializeAfterShowing()
 // Loads the patient data file, fills all forms and triggers visualization plot.
 void MainWindow::loadPatientDataFile(QString& patientDataFileName)
 {
+    m_loadingPatientDataInProgress = true;
+
     ui->labelPatientDataFile->setText(patientDataFileName);
 
     // Store the file name so it can be written to the settings file on program exit
@@ -259,6 +276,8 @@ void MainWindow::loadPatientDataFile(QString& patientDataFileName)
         QString doseString = patientDataJsonObject["chemoTherapyAndMedicamentation"][i]["dose"].toString();
         ui->tableWidgetChemoAndMeds->setItem(i, 2, new QTableWidgetItem(doseString));
     }
+
+    m_loadingPatientDataInProgress = false;
 
     plotVisualization();
 }
@@ -567,6 +586,8 @@ void MainWindow::on_actionSettingsSaveAs_triggered()
     patientDataFile.write(patientDataJsonDocument.toJson());
 
     patientDataFile.close();
+
+    m_patientDataChangedSinceLastSave = false;
 }
 
 void MainWindow::on_actionOpenPatientDataFile_triggered()
@@ -630,13 +651,25 @@ void MainWindow::on_actionSettings_triggered()
 
 void MainWindow::on_tableWidgetBloodSamples_cellChanged(int row, int column)
 {
-    m_tableDataChangedSinceLastVisualizationPlot = true;
+    // If the cell data is not changed by the application itself during patient data
+    // file loading, set the respective flags.
+    if(!m_loadingPatientDataInProgress)
+    {
+        m_tableDataChangedSinceLastVisualizationPlot = true;
+        m_patientDataChangedSinceLastSave = true;
+    }
 }
 
 
 void MainWindow::on_tableWidgetChemoAndMeds_cellChanged(int row, int column)
 {
-    m_tableDataChangedSinceLastVisualizationPlot = true;
+    // If the cell data is not changed by the application itself during patient data
+    // file loading, set the respective flags.
+    if(!m_loadingPatientDataInProgress)
+    {
+        m_tableDataChangedSinceLastVisualizationPlot = true;
+        m_patientDataChangedSinceLastSave = true;
+    }
 }
 
 
@@ -648,5 +681,17 @@ void MainWindow::on_tabWidget_currentChanged(int index)
         m_tableDataChangedSinceLastVisualizationPlot = false;
         plotVisualization();
     }
+}
+
+
+void MainWindow::on_lineEditPatientName_textEdited(const QString &arg1)
+{
+    m_patientDataChangedSinceLastSave = true;
+}
+
+
+void MainWindow::on_lineEditPatientDateOfBirth_textEdited(const QString &arg1)
+{
+    m_patientDataChangedSinceLastSave = true;
 }
 
