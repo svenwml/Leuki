@@ -16,6 +16,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void initializeAfterShowing();
 
 private slots:
     void on_pushButtonNewBloodSample_clicked();

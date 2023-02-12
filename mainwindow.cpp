@@ -6,6 +6,9 @@ const char* leukiSettingsDefault =
 #include "leukiSettingsDefault.txt"
 ;
 
+const static unsigned int heightVisualizationTextLabelPixels = 45;
+const static unsigned int lengthVisualizationArrowPixels = 15;
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -136,20 +139,24 @@ MainWindow::MainWindow(QWidget *parent)
     // Initialize with current date.
     double currentSecondsSinceEpoch = QDateTime::currentSecsSinceEpoch();
     ui->customPlot->xAxis->setRange(currentSecondsSinceEpoch, currentSecondsSinceEpoch + 1);
-
-    // Auto-load previously opened patient data file if this setting is activated and a valid
-    // previous file name exists.
-    if(m_settingsWindow.getSettings().autoLoadPatientDataFileOnStartup && QFile::exists(m_previousPatientDataFileName))
-    {
-        loadPatientDataFile(m_previousPatientDataFileName);
-    }
-
 }
 
 MainWindow::~MainWindow()
 {
     saveSettingsFile();
     delete ui;
+}
+
+// Initialization steps, must not be called before constructor and show() have been called
+// in order to make plot axes scaling detection work properly.
+void MainWindow::initializeAfterShowing()
+{
+    // Auto-load previously opened patient data file if this setting is activated and a valid
+    // previous file name exists.
+    if(m_settingsWindow.getSettings().autoLoadPatientDataFileOnStartup && QFile::exists(m_previousPatientDataFileName))
+    {
+        loadPatientDataFile(m_previousPatientDataFileName);
+    }
 }
 
 // Loads the patient data file, fills all forms and triggers visualization plot.
@@ -430,16 +437,12 @@ void MainWindow::plotVisualization()
 
         for(auto i = 0; i < chemoAndMedsCount; i++)
         {
-            // Text Label
-            QCPItemText *textLabel = new QCPItemText(ui->customPlot);
-            textLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
-            textLabel->position->setType(QCPItemPosition::ptPlotCoords);
             auto secondsSinceEpoch = QDateTime::fromString(ui->tableWidgetChemoAndMeds->item(i, 0)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
 
             // Try to find a position for the label, it should be placed on top of the highest graph.
             // For this, iterate through all graphs and their respective data points.
 
-            double yPositionLabel = 0.0;
+            double yPositionLabel = 1.0;
 
             for(auto graphIndex = 0; graphIndex < ui->customPlot->graphCount(); graphIndex++)
             {
@@ -479,19 +482,28 @@ void MainWindow::plotVisualization()
                 }
             }
 
-            textLabel->position->setCoords(secondsSinceEpoch, yPositionLabel);
+            // Text Label
+            QCPItemText *textLabel = new QCPItemText(ui->customPlot);
+            textLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
+            textLabel->position->setType(QCPItemPosition::ptPlotCoords);
+            textLabel->position->setPixelPosition(QPointF(ui->customPlot->xAxis->coordToPixel(secondsSinceEpoch),
+                                                          ui->customPlot->yAxis->coordToPixel(0) + lengthVisualizationArrowPixels));
             textLabel->setText(ui->tableWidgetChemoAndMeds->item(i, 1)->text() + "\n" + ui->tableWidgetChemoAndMeds->item(i, 2)->text());
             textLabel->setPen(QPen(Qt::black));
 
             // Arrow from text label to x-axis
             QCPItemLine *arrow = new QCPItemLine(ui->customPlot);
-            arrow->start->setParentAnchor(textLabel->bottom);
+            arrow->start->setParentAnchor(textLabel->top);
             arrow->end->setCoords(secondsSinceEpoch, 0);
             arrow->setHead(QCPLineEnding::esSpikeArrow);
         }
     }
 
-    ui->customPlot->rescaleAxes();
+    auto yAxisPixelsPerStep = abs(ui->customPlot->yAxis->coordToPixel(1) - ui->customPlot->yAxis->coordToPixel(0));
+    auto yAxisMin = - ((heightVisualizationTextLabelPixels + lengthVisualizationArrowPixels) / yAxisPixelsPerStep);
+
+    ui->customPlot->yAxis->setRange(yAxisMin, yAxisMax);
+
     ui->customPlot->replot();
 }
 
@@ -657,4 +669,3 @@ void MainWindow::on_actionSettings_triggered()
 {
     m_settingsWindow.show();
 }
-
