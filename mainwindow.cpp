@@ -12,6 +12,7 @@ const static unsigned int lengthVisualizationArrowPixels = 15;
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , m_tableDataChangedSinceLastVisualizationPlot(false)
 {
     ui->setupUi(this);
 
@@ -626,3 +627,26 @@ void MainWindow::on_actionSettings_triggered()
 {
     m_settingsWindow.show();
 }
+
+void MainWindow::on_tableWidgetBloodSamples_cellChanged(int row, int column)
+{
+    m_tableDataChangedSinceLastVisualizationPlot = true;
+}
+
+
+void MainWindow::on_tableWidgetChemoAndMeds_cellChanged(int row, int column)
+{
+    m_tableDataChangedSinceLastVisualizationPlot = true;
+}
+
+
+void MainWindow::on_tabWidget_currentChanged(int index)
+{
+    // If visualization tab is clicked, replot if table data has been changed since last plot.
+    if(index == 3 && m_tableDataChangedSinceLastVisualizationPlot)
+    {
+        m_tableDataChangedSinceLastVisualizationPlot = false;
+        plotVisualization();
+    }
+}
+

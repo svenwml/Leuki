@@ -39,10 +39,17 @@ private slots:
 
     void on_actionSettings_triggered();
 
+    void on_tableWidgetBloodSamples_cellChanged(int row, int column);
+
+    void on_tableWidgetChemoAndMeds_cellChanged(int row, int column);
+
+    void on_tabWidget_currentChanged(int index);
+
 private:
     Ui::MainWindow *ui;
     QString m_previousPatientDataFileName;
     SettingsWindow m_settingsWindow;
+    bool m_tableDataChangedSinceLastVisualizationPlot;
     void loadPatientDataFile(QString&);
     void saveSettingsFile();
     void ensureTableWidgetCellsAreNotNull(QTableWidget*);
