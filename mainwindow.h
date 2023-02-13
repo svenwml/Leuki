@@ -25,7 +25,7 @@ private slots:
 
     void on_actionOpenPatientDataFile_triggered();
 
-    void on_pushButtonNewChemoAndMed_clicked();
+    void on_pushButtonAddChemoAndMed_clicked();
 
     void on_checkBoxVisualizationShowLeukocytes_stateChanged(int arg1);
 

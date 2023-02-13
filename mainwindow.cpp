@@ -608,7 +608,7 @@ void MainWindow::on_actionOpenPatientDataFile_triggered()
 }
 
 
-void MainWindow::on_pushButtonNewChemoAndMed_clicked()
+void MainWindow::on_pushButtonAddChemoAndMed_clicked()
 {
     ui->tableWidgetChemoAndMeds->setRowCount(ui->tableWidgetChemoAndMeds->rowCount() + 1);
 }

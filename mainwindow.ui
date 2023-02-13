@@ -158,17 +158,17 @@
        </rect>
       </property>
      </widget>
-     <widget class="QPushButton" name="pushButtonNewChemoAndMed">
+     <widget class="QPushButton" name="pushButtonAddChemoAndMed">
       <property name="geometry">
        <rect>
         <x>10</x>
         <y>340</y>
-        <width>231</width>
+        <width>51</width>
         <height>24</height>
        </rect>
       </property>
       <property name="text">
-       <string>New Chemo Therapy / Medicamentation</string>
+       <string>Add</string>
       </property>
      </widget>
     </widget>
