@@ -130,17 +130,17 @@
        </rect>
       </property>
      </widget>
-     <widget class="QPushButton" name="pushButtonNewBloodSample">
+     <widget class="QPushButton" name="pushButtonAddBloodSample">
       <property name="geometry">
        <rect>
         <x>10</x>
         <y>340</y>
-        <width>111</width>
+        <width>51</width>
         <height>24</height>
        </rect>
       </property>
       <property name="text">
-       <string>New Blood Sample</string>
+       <string>Add</string>
       </property>
      </widget>
     </widget>

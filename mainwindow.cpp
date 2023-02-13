@@ -484,7 +484,7 @@ void MainWindow::plotVisualization()
     ui->customPlot->replot();
 }
 
-void MainWindow::on_pushButtonNewBloodSample_clicked()
+void MainWindow::on_pushButtonAddBloodSample_clicked()
 {
     ui->tableWidgetBloodSamples->setRowCount(ui->tableWidgetBloodSamples->rowCount() + 1);
 }

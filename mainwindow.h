@@ -19,7 +19,7 @@ public:
     void initializeAfterShowing();
 
 private slots:
-    void on_pushButtonNewBloodSample_clicked();
+    void on_pushButtonAddBloodSample_clicked();
 
     void on_actionSettingsSaveAs_triggered();
 
