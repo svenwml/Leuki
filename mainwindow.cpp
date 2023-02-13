@@ -324,11 +324,11 @@ void MainWindow::saveSettingsFile()
 }
 
 // Replaces all empty (null) cell contents of the passed table with an empty string.
-void MainWindow::ensureTableWidgetCellsAreNotNull(QTableWidget* tableWidget)
+void MainWindow::ensureTableWidgetCellsAreNotNull(QTableWidget& tableWidget)
 {
-    for(auto row = 0; row < tableWidget->rowCount(); row++)
+    for(auto row = 0; row < tableWidget.rowCount(); row++)
     {
-        for(auto column = 0; column < tableWidget->columnCount(); column++)
+        for(auto column = 0; column < tableWidget.columnCount(); column++)
         {
             if(!ui->tableWidgetBloodSamples->item(row, column))
             {
@@ -561,7 +561,7 @@ void MainWindow::on_actionSettingsSaveAs_triggered()
     patientDataJsonObject["dateOfBirth"] = ui->lineEditPatientDateOfBirth->text();
 
     // Make sure that each cell of the blood samples table contains some text.
-    ensureTableWidgetCellsAreNotNull(ui->tableWidgetBloodSamples);
+    ensureTableWidgetCellsAreNotNull(*(ui->tableWidgetBloodSamples));
 
     QJsonArray bloodSamplesArray;
     auto bloodSamplesArraySize = ui->tableWidgetBloodSamples->rowCount();
@@ -608,7 +608,7 @@ void MainWindow::on_actionSettingsSaveAs_triggered()
     patientDataJsonObject["bloodSamples"] = bloodSamplesArray;
 
     // Make sure that each cell of the chemo and meds table contains some text.
-    ensureTableWidgetCellsAreNotNull(ui->tableWidgetChemoAndMeds);
+    ensureTableWidgetCellsAreNotNull(*(ui->tableWidgetChemoAndMeds));
 
     QJsonArray chemoAndMedsArray;
     auto chemoAndMedsArraySize = ui->tableWidgetChemoAndMeds->rowCount();

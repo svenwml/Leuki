@@ -62,7 +62,7 @@ private:
     bool m_loadingPatientDataInProgress;
     void loadPatientDataFile(QString&);
     void saveSettingsFile();
-    void ensureTableWidgetCellsAreNotNull(QTableWidget*);
+    void ensureTableWidgetCellsAreNotNull(QTableWidget&);
     qsizetype deleteSelectedTableRows(QTableWidget&);
     void plotVisualization();
 };
