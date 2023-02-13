@@ -49,6 +49,10 @@ private slots:
 
     void on_lineEditPatientDateOfBirth_textEdited(const QString &arg1);
 
+    void on_pushButtonDeleteSelectedBloodSample_clicked();
+
+    void on_pushButtonDeleteSelectedChemoAndMed_clicked();
+
 private:
     Ui::MainWindow *ui;
     QString m_previousPatientDataFileName;
@@ -59,6 +63,7 @@ private:
     void loadPatientDataFile(QString&);
     void saveSettingsFile();
     void ensureTableWidgetCellsAreNotNull(QTableWidget*);
+    qsizetype deleteSelectedTableRows(QTableWidget&);
     void plotVisualization();
 };
 #endif // MAINWINDOW_H

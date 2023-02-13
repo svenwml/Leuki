@@ -330,6 +330,40 @@ void MainWindow::ensureTableWidgetCellsAreNotNull(QTableWidget* tableWidget)
     }
 }
 
+// Deletes the selected rows of the passed table.
+// Returns the number of deleted rows.
+qsizetype MainWindow::deleteSelectedTableRows(QTableWidget& qTableWidget)
+{
+    // Check if one or more items are selected.
+    if(qTableWidget.selectionModel()->hasSelection())
+    {
+       auto selectedRows = qTableWidget.selectionModel()->selectedRows();
+
+       // Selected rows are stored in selection order, so find the first selected row's index
+       // first by iterating through all selected rows.
+       int firstRowToDeleteIndex = INT_MAX;
+
+       for(auto i = 0; i < selectedRows.count(); i++)
+       {
+           if(selectedRows[i].row() < firstRowToDeleteIndex)
+           {
+               firstRowToDeleteIndex = selectedRows[i].row();
+           }
+       }
+
+       for(auto i = 0; i < selectedRows.count(); i++)
+       {
+           // The item below the previously gets it's index, so use the same index for all
+           // items to delete.
+           qTableWidget.removeRow(firstRowToDeleteIndex);
+       }
+
+       return selectedRows.count();
+    }
+
+    return 0;
+}
+
 // (Re-)Plots the visualization.
 void MainWindow::plotVisualization()
 {
@@ -699,5 +733,28 @@ void MainWindow::on_lineEditPatientName_textEdited(const QString &arg1)
 void MainWindow::on_lineEditPatientDateOfBirth_textEdited(const QString &arg1)
 {
     m_patientDataChangedSinceLastSave = true;
+}
+
+void MainWindow::on_pushButtonDeleteSelectedBloodSample_clicked()
+{
+    auto ret = deleteSelectedTableRows(*(ui->tableWidgetBloodSamples));
+
+    if(ret)
+    {
+        m_tableDataChangedSinceLastVisualizationPlot = true;
+        m_patientDataChangedSinceLastSave = true;
+    }
+}
+
+
+void MainWindow::on_pushButtonDeleteSelectedChemoAndMed_clicked()
+{
+    auto ret = deleteSelectedTableRows(*(ui->tableWidgetChemoAndMeds));
+
+    if(ret)
+    {
+        m_tableDataChangedSinceLastVisualizationPlot = true;
+        m_patientDataChangedSinceLastSave = true;
+    }
 }
 
