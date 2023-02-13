@@ -173,6 +173,14 @@ void MainWindow::initializeAfterShowing()
     {
         loadPatientDataFile(m_previousPatientDataFileName);
     }
+
+    // This is a workaround. When visualization is not opened at this point (i.e. other tab is
+    // selected on startup), axes scaling detection does not work properly so we have to replot
+    // the next time the tab is opened.
+    if(ui->tabWidget->currentIndex() != 3)
+    {
+        m_tableDataChangedSinceLastVisualizationPlot = true;
+    }
 }
 
 // Loads the patient data file, fills all forms and triggers visualization plot.
