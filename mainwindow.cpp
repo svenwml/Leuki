@@ -487,6 +487,9 @@ void MainWindow::plotVisualization()
 void MainWindow::on_pushButtonAddBloodSample_clicked()
 {
     ui->tableWidgetBloodSamples->setRowCount(ui->tableWidgetBloodSamples->rowCount() + 1);
+
+    // Scroll to new added row.
+    ui->tableWidgetBloodSamples->scrollTo(ui->tableWidgetBloodSamples->model()->index(ui->tableWidgetBloodSamples->rowCount() - 1, 0));
 }
 
 void MainWindow::on_actionSettingsSaveAs_triggered()
@@ -611,6 +614,9 @@ void MainWindow::on_actionOpenPatientDataFile_triggered()
 void MainWindow::on_pushButtonAddChemoAndMed_clicked()
 {
     ui->tableWidgetChemoAndMeds->setRowCount(ui->tableWidgetChemoAndMeds->rowCount() + 1);
+
+    // Scroll to new added row.
+    ui->tableWidgetChemoAndMeds->scrollTo(ui->tableWidgetChemoAndMeds->model()->index(ui->tableWidgetChemoAndMeds->rowCount() - 1, 0));
 }
 
 
