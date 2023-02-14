@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include <iostream>
+#include <regex>
 
 const char* leukiSettingsDefault =
 #include "leukiSettingsDefault.txt"
@@ -365,6 +366,17 @@ qsizetype MainWindow::deleteSelectedTableRows(QTableWidget& qTableWidget)
     return 0;
 }
 
+bool MainWindow::checkDateFormat(QString dateString)
+{
+    auto dateStdString = dateString.toStdString();
+    std::regex regex("\\b\\d{2}[.]\\d{2}[.]\\d{4}\\b");
+    std::smatch match;
+
+    auto ret = std::regex_match(dateStdString, match, regex);
+
+    return ret;
+}
+
 void MainWindow::askPatientDataFileSave()
 {
     auto ret = QMessageBox::question(this,
@@ -469,8 +481,12 @@ void MainWindow::plotVisualization()
 
         for(auto bloodSampleIndex = 0; bloodSampleIndex < bloodSamplesCount; bloodSampleIndex++)
         {
-            // Ignore empty cells.
-            if(ui->tableWidgetBloodSamples->item(bloodSampleIndex, column)->text() != "")
+            if(// Ignore cells of rows with an invalid date.
+               ui->tableWidgetBloodSamples->item(bloodSampleIndex, 0) &&
+               checkDateFormat(ui->tableWidgetBloodSamples->item(bloodSampleIndex, 0)->text()) &&
+               // Ignore empty cells.
+               ui->tableWidgetBloodSamples->item(bloodSampleIndex, column) &&
+               ui->tableWidgetBloodSamples->item(bloodSampleIndex, column)->text() != "")
             {
                 QCPGraphData graphPoint;
 
@@ -492,8 +508,47 @@ void MainWindow::plotVisualization()
     // Plot (date axis range)
     if(bloodSamplesCount)
     {
-        double firstBloodSampleDateSecsSinceEpoch = QDateTime::fromString(ui->tableWidgetBloodSamples->item(0, 0)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
-        double lastBloodSampleDateSecsSinceEpoch = QDateTime::fromString(ui->tableWidgetBloodSamples->item(bloodSamplesCount - 1, 0)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
+        double firstBloodSampleDateSecsSinceEpoch = 0.0;
+        bool entryFound = false;
+
+        for(auto i = 0; i < ui->tableWidgetBloodSamples->rowCount(); i++)
+        {
+            if(ui->tableWidgetBloodSamples->item(i, 0) &&
+               checkDateFormat(ui->tableWidgetBloodSamples->item(i, 0)->text()))
+            {
+                firstBloodSampleDateSecsSinceEpoch = QDateTime::fromString(ui->tableWidgetBloodSamples->item(0, 0)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
+                entryFound = true;
+                break;
+            }
+        }
+
+        double lastBloodSampleDateSecsSinceEpoch = 0.0;
+
+        if(entryFound)
+        {
+            entryFound = false;
+
+            for(auto i = ui->tableWidgetBloodSamples->rowCount() - 1; i >= 0; i--)
+            {
+                if(ui->tableWidgetBloodSamples->item(i, 0) &&
+                   checkDateFormat(ui->tableWidgetBloodSamples->item(i, 0)->text()))
+                {
+                    lastBloodSampleDateSecsSinceEpoch = QDateTime::fromString(ui->tableWidgetBloodSamples->item(i, 0)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
+                    entryFound = true;
+                    break;
+                }
+            }
+        }
+
+        if(!entryFound)
+        {
+            QMessageBox::information(this,
+                                     "Leuki - No Valid Date Entries",
+                                     "Warning: No valid date entries for plot x-axes scaling found!");
+
+            return;
+        }
+
         ui->customPlot->xAxis->setRange(firstBloodSampleDateSecsSinceEpoch - 24*3600, lastBloodSampleDateSecsSinceEpoch + 24*3600);
     }
 
@@ -711,6 +766,22 @@ void MainWindow::on_actionSettings_triggered()
 
 void MainWindow::on_tableWidgetBloodSamples_cellChanged(int row, int column)
 {
+    // Check date format, must be dd.MM.yyyy .
+    if(column == 0)
+    {
+        QString dateString = ui->tableWidgetBloodSamples->item(row, column)->text();
+
+        if(!checkDateFormat(dateString))
+        {
+            QMessageBox::information(this,
+                                     "Leuki - Invalid Date Entry",
+                                     "Warning: Table Row " + QString::number(row + 1) +
+                                     " contains an invalid date entry (" +
+                                     dateString +
+                                     ")! Format must be dd.MM.yyyy .");
+        }
+    }
+
     // If the cell data is not changed by the application itself during patient data
     // file loading, set the respective flags.
     if(!m_loadingPatientDataInProgress)
