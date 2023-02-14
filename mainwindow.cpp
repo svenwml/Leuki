@@ -179,6 +179,7 @@ void MainWindow::initializeAfterShowing()
 void MainWindow::loadPatientDataFile(QString& patientDataFileName)
 {
     m_loadingPatientDataInProgress = true;
+    m_patientDataChangedSinceLastSave = false;
 
     ui->labelPatientDataFile->setText(patientDataFileName);
 
