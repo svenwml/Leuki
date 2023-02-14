@@ -381,7 +381,7 @@ void MainWindow::askPatientDataFileSave()
 {
     auto ret = QMessageBox::question(this,
                                      "Leuki - Patient Data Changed",
-                                     "Patient data has been changed since last save! Save first? Otherwise, data will be lost!",
+                                     "Patient data has been changed since last save! Save first? Otherwise, unsaved data will be lost!",
                                      QMessageBox::Yes|QMessageBox::No);
 
     if (ret == QMessageBox::Yes)
