@@ -64,6 +64,7 @@ private:
     void saveSettingsFile();
     void ensureTableWidgetCellsAreNotNull(QTableWidget&);
     qsizetype deleteSelectedTableRows(QTableWidget&);
+    void askPatientDataFileSave();
     void plotVisualization();
 };
 #endif // MAINWINDOW_H

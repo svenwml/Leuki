@@ -148,15 +148,7 @@ MainWindow::~MainWindow()
 {
     if(m_patientDataChangedSinceLastSave)
     {
-        auto ret = QMessageBox::question(this,
-                                         "Leuki - Patient Data Changed",
-                                         "Patient data has been changed since last save! Save before quitting?",
-                                         QMessageBox::Yes|QMessageBox::No);
-
-        if (ret == QMessageBox::Yes)
-        {
-            on_actionSettingsSaveAs_triggered();
-        }
+        askPatientDataFileSave();
     }
 
     saveSettingsFile();
@@ -370,6 +362,19 @@ qsizetype MainWindow::deleteSelectedTableRows(QTableWidget& qTableWidget)
     }
 
     return 0;
+}
+
+void MainWindow::askPatientDataFileSave()
+{
+    auto ret = QMessageBox::question(this,
+                                     "Leuki - Patient Data Changed",
+                                     "Patient data has been changed since last save! Save first? Otherwise, data will be lost!",
+                                     QMessageBox::Yes|QMessageBox::No);
+
+    if (ret == QMessageBox::Yes)
+    {
+        on_actionSettingsSaveAs_triggered();
+    }
 }
 
 // (Re-)Plots the visualization.
@@ -637,6 +642,12 @@ void MainWindow::on_actionSettingsSaveAs_triggered()
 
 void MainWindow::on_actionOpenPatientDataFile_triggered()
 {
+    // Ask for saving patient data file first if there are unsaved changes.
+    if(m_patientDataChangedSinceLastSave)
+    {
+        askPatientDataFileSave();
+    }
+
     // Load patient data from patient data file.
 
     QFileInfo patientDataFileInfo(m_previousPatientDataFileName);
