@@ -124,11 +124,15 @@ MainWindow::MainWindow(QWidget *parent)
     ui->tableWidgetBloodSamples->setHorizontalHeaderItem(3, new QTableWidgetItem("Hemoglobin"));
     ui->tableWidgetBloodSamples->setHorizontalHeaderItem(4, new QTableWidgetItem("Thrombocytes"));
 
+    ui->tableWidgetBloodSamples->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
     ui->tableWidgetChemoAndMeds->setColumnCount(4);
     ui->tableWidgetChemoAndMeds->setHorizontalHeaderItem(0, new QTableWidgetItem("Date (Start)"));
     ui->tableWidgetChemoAndMeds->setHorizontalHeaderItem(1, new QTableWidgetItem("Name"));
     ui->tableWidgetChemoAndMeds->setHorizontalHeaderItem(2, new QTableWidgetItem("Dose per Day"));
     ui->tableWidgetChemoAndMeds->setHorizontalHeaderItem(3, new QTableWidgetItem("Days"));
+
+    ui->tableWidgetChemoAndMeds->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
     // Setup plot.
 
