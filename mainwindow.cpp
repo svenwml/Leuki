@@ -124,10 +124,11 @@ MainWindow::MainWindow(QWidget *parent)
     ui->tableWidgetBloodSamples->setHorizontalHeaderItem(3, new QTableWidgetItem("Hemoglobin"));
     ui->tableWidgetBloodSamples->setHorizontalHeaderItem(4, new QTableWidgetItem("Thrombocytes"));
 
-    ui->tableWidgetChemoAndMeds->setColumnCount(3);
-    ui->tableWidgetChemoAndMeds->setHorizontalHeaderItem(0, new QTableWidgetItem("Date"));
+    ui->tableWidgetChemoAndMeds->setColumnCount(4);
+    ui->tableWidgetChemoAndMeds->setHorizontalHeaderItem(0, new QTableWidgetItem("Date (Start)"));
     ui->tableWidgetChemoAndMeds->setHorizontalHeaderItem(1, new QTableWidgetItem("Name"));
-    ui->tableWidgetChemoAndMeds->setHorizontalHeaderItem(2, new QTableWidgetItem("Dose"));
+    ui->tableWidgetChemoAndMeds->setHorizontalHeaderItem(2, new QTableWidgetItem("Dose per Day"));
+    ui->tableWidgetChemoAndMeds->setHorizontalHeaderItem(3, new QTableWidgetItem("Days"));
 
     // Setup plot.
 
@@ -277,6 +278,10 @@ void MainWindow::loadPatientDataFile(QString& patientDataFileName)
         // Dose
         QString doseString = patientDataJsonObject["chemoTherapyAndMedicamentation"][i]["dose"].toString();
         ui->tableWidgetChemoAndMeds->setItem(i, 2, new QTableWidgetItem(doseString));
+
+        // Days
+        QString daysString = patientDataJsonObject["chemoTherapyAndMedicamentation"][i]["days"].toString();
+        ui->tableWidgetChemoAndMeds->setItem(i, 3, new QTableWidgetItem(daysString));
     }
 
     m_loadingPatientDataInProgress = false;
@@ -561,21 +566,57 @@ void MainWindow::plotVisualization()
         for(auto i = 0; i < chemoAndMedsCount; i++)
         {
             auto secondsSinceEpoch = QDateTime::fromString(ui->tableWidgetChemoAndMeds->item(i, 0)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
+            int days = 1;
+
+            if(ui->tableWidgetChemoAndMeds->item(i, 3))
+            {
+                bool conversionSuccessful = false;
+                int ret = ui->tableWidgetChemoAndMeds->item(i, 3)->text().toInt(&conversionSuccessful);
+
+                if(conversionSuccessful)
+                {
+                    days = ret;
+                }
+            }
 
             // Text Label
+
             QCPItemText *textLabel = new QCPItemText(ui->customPlot);
             textLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
             textLabel->position->setType(QCPItemPosition::ptPlotCoords);
-            textLabel->position->setPixelPosition(QPointF(ui->customPlot->xAxis->coordToPixel(secondsSinceEpoch),
-                                                          ui->customPlot->yAxis->coordToPixel(0) + lengthVisualizationArrowPixels));
-            textLabel->setText(ui->tableWidgetChemoAndMeds->item(i, 1)->text() + "\n" + ui->tableWidgetChemoAndMeds->item(i, 2)->text());
+
+            // Place the label in the middle of it's time span.
+            textLabel->position->setPixelPosition(QPointF(ui->customPlot->xAxis->coordToPixel(static_cast<double>(secondsSinceEpoch) +
+                                                                                              (static_cast<double>(days - 1) * 0.5) *
+                                                                                              static_cast<double>(24 * 3600)),
+            ui->customPlot->yAxis->coordToPixel(0) + lengthVisualizationArrowPixels));
+
+            QString name = "";
+            QString dose = "";
+
+            // Check cells for content before evaluating to avoid nullptr-access.
+
+            if(ui->tableWidgetChemoAndMeds->item(i, 1))
+            {
+                name = ui->tableWidgetChemoAndMeds->item(i, 1)->text();
+            }
+
+            if(ui->tableWidgetChemoAndMeds->item(i, 2))
+            {
+                dose = ui->tableWidgetChemoAndMeds->item(i, 2)->text();
+            }
+
+            textLabel->setText(name + "\n" + dose);
             textLabel->setPen(QPen(Qt::black));
 
-            // Arrow from text label to x-axis
-            QCPItemLine *arrow = new QCPItemLine(ui->customPlot);
-            arrow->start->setParentAnchor(textLabel->top);
-            arrow->end->setCoords(secondsSinceEpoch, 0);
-            arrow->setHead(QCPLineEnding::esSpikeArrow);
+            for(auto i = 0; i < days; i++)
+            {
+                // Arrow from text label to x-axis
+                QCPItemLine *arrow = new QCPItemLine(ui->customPlot);
+                arrow->start->setParentAnchor(textLabel->top);
+                arrow->end->setCoords(secondsSinceEpoch + i * 24 * 3600, 0);
+                arrow->setHead(QCPLineEnding::esSpikeArrow);
+            }
         }
     }
 
@@ -681,6 +722,7 @@ void MainWindow::on_actionSettingsSaveAs_triggered()
         chemoAndMedsJsonObject["date"] = ui->tableWidgetChemoAndMeds->item(i, 0)->text();
         chemoAndMedsJsonObject["name"] = ui->tableWidgetChemoAndMeds->item(i, 1)->text();
         chemoAndMedsJsonObject["dose"] = ui->tableWidgetChemoAndMeds->item(i, 2)->text();
+        chemoAndMedsJsonObject["days"] = ui->tableWidgetChemoAndMeds->item(i, 3)->text();
 
         chemoAndMedsArray.push_back(chemoAndMedsJsonObject);
     }
