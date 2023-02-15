@@ -657,9 +657,6 @@ void MainWindow::on_actionSettingsSaveAs_triggered()
 
     // Collect and write all data to the selected patient data file.
 
-    QFile patientDataFile;
-    patientDataFile.setFileName(patientDataFileName);
-    patientDataFile.open(QIODevice::WriteOnly | QIODevice::Text);
     QJsonDocument patientDataJsonDocument;
     QJsonObject patientDataJsonObject;
 
@@ -735,8 +732,10 @@ void MainWindow::on_actionSettingsSaveAs_triggered()
 
     patientDataJsonDocument.setObject(patientDataJsonObject);
 
+    QFile patientDataFile;
+    patientDataFile.setFileName(patientDataFileName);
+    patientDataFile.open(QIODevice::WriteOnly | QIODevice::Text);
     patientDataFile.write(patientDataJsonDocument.toJson());
-
     patientDataFile.close();
 
     m_patientDataChangedSinceLastSave = false;
