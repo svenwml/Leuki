@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
     , m_tableDataChangedSinceLastVisualizationPlot(false)
     , m_patientDataChangedSinceLastSave(false)
-    , m_loadingPatientDataInProgress(false)
+    , m_internalTableModificationsInProgress(false)
 {
     ui->setupUi(this);
 
@@ -184,7 +184,7 @@ void MainWindow::initializeAfterShowing()
 // Loads the patient data file, fills all forms and triggers visualization plot.
 void MainWindow::loadPatientDataFile(QString& patientDataFileName)
 {
-    m_loadingPatientDataInProgress = true;
+    m_internalTableModificationsInProgress = true;
     m_patientDataChangedSinceLastSave = false;
 
     ui->labelPatientDataFile->setText(patientDataFileName);
@@ -288,7 +288,7 @@ void MainWindow::loadPatientDataFile(QString& patientDataFileName)
         ui->tableWidgetChemoAndMeds->setItem(i, 3, new QTableWidgetItem(daysString));
     }
 
-    m_loadingPatientDataInProgress = false;
+    m_internalTableModificationsInProgress = false;
 
     plotVisualization();
 }
@@ -825,11 +825,66 @@ void MainWindow::on_tableWidgetBloodSamples_cellChanged(int row, int column)
                                      dateString +
                                      ")! Format must be dd.MM.yyyy .");
         }
+        else if (!m_internalTableModificationsInProgress)
+        {
+            // Re-Sort if required.
+            auto dateOfEditedRow = QDateTime::fromString(dateString, "dd.MM.yyyy").toSecsSinceEpoch();
+
+            int rowToMoveNewItemTo = 0;
+
+            for(int i = 0; i < ui->tableWidgetBloodSamples->rowCount() - 1; i++)
+            {
+                auto dateOfCurrentRow = QDateTime::fromString(ui->tableWidgetBloodSamples->item(i, 0)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
+                long long dateOfNextRow = LLONG_MAX;
+
+                if(i < ui->tableWidgetBloodSamples->rowCount() - 2)
+                {
+                   dateOfNextRow = QDateTime::fromString(ui->tableWidgetBloodSamples->item(i + 1, 0)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
+                }
+
+                // Edited item must be placed before first item.
+                if(i == 0 && dateOfEditedRow < dateOfCurrentRow)
+                {
+                    rowToMoveNewItemTo = i;
+                }
+                // Edited item must be placed between two items.
+                else if(dateOfEditedRow >= dateOfCurrentRow && dateOfEditedRow < dateOfNextRow)
+                {
+                    rowToMoveNewItemTo = i + 1;
+                }
+            }
+
+            if(row != rowToMoveNewItemTo)
+            {
+                m_internalTableModificationsInProgress = true;
+
+                // Insert a new row at the destination row position.
+                ui->tableWidgetBloodSamples->insertRow(rowToMoveNewItemTo);
+
+                // Copy new user-added row's contents to the inserted new row.
+                for(auto i = 0; i < ui->tableWidgetBloodSamples->columnCount(); i++)
+                {
+                    // At this point, increase row by one for accessing the new added row
+                    // since it's index has been increased by inserting a new row above.
+                    if(ui->tableWidgetBloodSamples->item(row + 1, i))
+                    {
+                        ui->tableWidgetBloodSamples->setItem(rowToMoveNewItemTo,
+                                                             i,
+                                                             new QTableWidgetItem(ui->tableWidgetBloodSamples->item(row + 1, i)->text()));
+                    }
+                }
+
+                // Delete new user-added row after copying.
+                ui->tableWidgetBloodSamples->removeRow(row + 1);
+
+                m_internalTableModificationsInProgress = false;
+            }
+        }
     }
 
     // If the cell data is not changed by the application itself during patient data
     // file loading, set the respective flags.
-    if(!m_loadingPatientDataInProgress)
+    if(!m_internalTableModificationsInProgress)
     {
         m_tableDataChangedSinceLastVisualizationPlot = true;
         m_patientDataChangedSinceLastSave = true;
@@ -841,7 +896,7 @@ void MainWindow::on_tableWidgetChemoAndMeds_cellChanged(int row, int column)
 {
     // If the cell data is not changed by the application itself during patient data
     // file loading, set the respective flags.
-    if(!m_loadingPatientDataInProgress)
+    if(!m_internalTableModificationsInProgress)
     {
         m_tableDataChangedSinceLastVisualizationPlot = true;
         m_patientDataChangedSinceLastSave = true;

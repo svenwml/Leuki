@@ -59,7 +59,7 @@ private:
     SettingsWindow m_settingsWindow;
     bool m_tableDataChangedSinceLastVisualizationPlot;
     bool m_patientDataChangedSinceLastSave;
-    bool m_loadingPatientDataInProgress;
+    bool m_internalTableModificationsInProgress;
     void loadPatientDataFile(QString&);
     void saveSettingsFile();
     void ensureTableWidgetCellsAreNotNull(QTableWidget&);
