@@ -333,9 +333,9 @@ void MainWindow::ensureTableWidgetCellsAreNotNull(QTableWidget& tableWidget)
     {
         for(auto column = 0; column < tableWidget.columnCount(); column++)
         {
-            if(!ui->tableWidgetBloodSamples->item(row, column))
+            if(!tableWidget.item(row, column))
             {
-                ui->tableWidgetBloodSamples->setItem(row, column, new QTableWidgetItem(""));
+                tableWidget.setItem(row, column, new QTableWidgetItem(""));
             }
         }
     }
