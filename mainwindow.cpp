@@ -375,6 +375,63 @@ qsizetype MainWindow::deleteSelectedTableRows(QTableWidget& qTableWidget)
     return 0;
 }
 
+// Sorts the passed row of the passed table in the table so that table is sorted date ascending.
+void MainWindow::sortEditedTableRow(QTableWidget& table, int row)
+{
+    // Re-Sort if required.
+    auto dateOfEditedRow = QDateTime::fromString(table.item(row, 0)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
+
+    int rowToMoveNewItemTo = 0;
+
+    for(int i = 0; i < table.rowCount() - 1; i++)
+    {
+        auto dateOfCurrentRow = QDateTime::fromString(table.item(i, 0)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
+        long long dateOfNextRow = LLONG_MAX;
+
+        if(i < table.rowCount() - 2)
+        {
+           dateOfNextRow = QDateTime::fromString(table.item(i + 1, 0)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
+        }
+
+        // Edited item must be placed before first item.
+        if(i == 0 && dateOfEditedRow < dateOfCurrentRow)
+        {
+            rowToMoveNewItemTo = i;
+        }
+        // Edited item must be placed between two items.
+        else if(dateOfEditedRow >= dateOfCurrentRow && dateOfEditedRow < dateOfNextRow)
+        {
+            rowToMoveNewItemTo = i + 1;
+        }
+    }
+
+    if(row != rowToMoveNewItemTo)
+    {
+        m_internalTableModificationsInProgress = true;
+
+        // Insert a new row at the destination row position.
+        table.insertRow(rowToMoveNewItemTo);
+
+        // Copy new user-added row's contents to the inserted new row.
+        for(auto i = 0; i < table.columnCount(); i++)
+        {
+            // At this point, increase row by one for accessing the new added row
+            // since it's index has been increased by inserting a new row above.
+            if(table.item(row + 1, i))
+            {
+                table.setItem(rowToMoveNewItemTo,
+                              i,
+                              new QTableWidgetItem(table.item(row + 1, i)->text()));
+            }
+        }
+
+        // Delete new user-added row after copying.
+        table.removeRow(row + 1);
+
+        m_internalTableModificationsInProgress = false;
+    }
+}
+
 bool MainWindow::checkDateFormat(QString dateString)
 {
     auto dateStdString = dateString.toStdString();
@@ -827,58 +884,7 @@ void MainWindow::on_tableWidgetBloodSamples_cellChanged(int row, int column)
         }
         else if (!m_internalTableModificationsInProgress)
         {
-            // Re-Sort if required.
-            auto dateOfEditedRow = QDateTime::fromString(dateString, "dd.MM.yyyy").toSecsSinceEpoch();
-
-            int rowToMoveNewItemTo = 0;
-
-            for(int i = 0; i < ui->tableWidgetBloodSamples->rowCount() - 1; i++)
-            {
-                auto dateOfCurrentRow = QDateTime::fromString(ui->tableWidgetBloodSamples->item(i, 0)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
-                long long dateOfNextRow = LLONG_MAX;
-
-                if(i < ui->tableWidgetBloodSamples->rowCount() - 2)
-                {
-                   dateOfNextRow = QDateTime::fromString(ui->tableWidgetBloodSamples->item(i + 1, 0)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
-                }
-
-                // Edited item must be placed before first item.
-                if(i == 0 && dateOfEditedRow < dateOfCurrentRow)
-                {
-                    rowToMoveNewItemTo = i;
-                }
-                // Edited item must be placed between two items.
-                else if(dateOfEditedRow >= dateOfCurrentRow && dateOfEditedRow < dateOfNextRow)
-                {
-                    rowToMoveNewItemTo = i + 1;
-                }
-            }
-
-            if(row != rowToMoveNewItemTo)
-            {
-                m_internalTableModificationsInProgress = true;
-
-                // Insert a new row at the destination row position.
-                ui->tableWidgetBloodSamples->insertRow(rowToMoveNewItemTo);
-
-                // Copy new user-added row's contents to the inserted new row.
-                for(auto i = 0; i < ui->tableWidgetBloodSamples->columnCount(); i++)
-                {
-                    // At this point, increase row by one for accessing the new added row
-                    // since it's index has been increased by inserting a new row above.
-                    if(ui->tableWidgetBloodSamples->item(row + 1, i))
-                    {
-                        ui->tableWidgetBloodSamples->setItem(rowToMoveNewItemTo,
-                                                             i,
-                                                             new QTableWidgetItem(ui->tableWidgetBloodSamples->item(row + 1, i)->text()));
-                    }
-                }
-
-                // Delete new user-added row after copying.
-                ui->tableWidgetBloodSamples->removeRow(row + 1);
-
-                m_internalTableModificationsInProgress = false;
-            }
+            sortEditedTableRow(*(ui->tableWidgetBloodSamples), row);
         }
     }
 
@@ -894,6 +900,26 @@ void MainWindow::on_tableWidgetBloodSamples_cellChanged(int row, int column)
 
 void MainWindow::on_tableWidgetChemoAndMeds_cellChanged(int row, int column)
 {
+    // Check date format, must be dd.MM.yyyy .
+    if(column == 0)
+    {
+        QString dateString = ui->tableWidgetChemoAndMeds->item(row, column)->text();
+
+        if(!checkDateFormat(dateString))
+        {
+            QMessageBox::information(this,
+                                     "Leuki - Invalid Date Entry",
+                                     "Warning: Table Row " + QString::number(row + 1) +
+                                     " contains an invalid date entry (" +
+                                     dateString +
+                                     ")! Format must be dd.MM.yyyy .");
+        }
+        else if (!m_internalTableModificationsInProgress)
+        {
+            sortEditedTableRow(*(ui->tableWidgetChemoAndMeds), row);
+        }
+    }
+
     // If the cell data is not changed by the application itself during patient data
     // file loading, set the respective flags.
     if(!m_internalTableModificationsInProgress)
