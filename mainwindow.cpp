@@ -917,7 +917,6 @@ void MainWindow::on_actionOpenPatientDataFile_triggered()
     }
 }
 
-
 void MainWindow::on_pushButtonAddChemoAndMed_clicked()
 {
     ui->tableWidgetChemoAndMeds->setRowCount(ui->tableWidgetChemoAndMeds->rowCount() + 1);
@@ -926,36 +925,30 @@ void MainWindow::on_pushButtonAddChemoAndMed_clicked()
     ui->tableWidgetChemoAndMeds->scrollTo(ui->tableWidgetChemoAndMeds->model()->index(ui->tableWidgetChemoAndMeds->rowCount() - 1, 0));
 }
 
-
 void MainWindow::on_checkBoxVisualizationShowLeukocytes_stateChanged(int arg1)
 {
     plotVisualization();
 }
-
 
 void MainWindow::on_checkBoxVisualizationShowErythrocytes_stateChanged(int arg1)
 {
     plotVisualization();
 }
 
-
 void MainWindow::on_checkBoxVisualizationShowHemoglobin_stateChanged(int arg1)
 {
     plotVisualization();
 }
-
 
 void MainWindow::on_checkBoxVisualizationShowThrombocytes_stateChanged(int arg1)
 {
     plotVisualization();
 }
 
-
 void MainWindow::on_checkBoxVisualizationShowMedicamentationAndChemoTherapy_stateChanged(int arg1)
 {
     plotVisualization();
 }
-
 
 void MainWindow::on_actionSettings_triggered()
 {
@@ -995,7 +988,6 @@ void MainWindow::on_tableWidgetBloodSamples_cellChanged(int row, int column)
     }
 }
 
-
 void MainWindow::on_tableWidgetChemoAndMeds_cellChanged(int row, int column)
 {
     // Check date format, must be dd.MM.yyyy .
@@ -1029,7 +1021,6 @@ void MainWindow::on_tableWidgetChemoAndMeds_cellChanged(int row, int column)
     }
 }
 
-
 void MainWindow::on_tabWidget_currentChanged(int index)
 {
     // If visualization tab is clicked, replot if table data has been changed since last plot.
@@ -1040,12 +1031,10 @@ void MainWindow::on_tabWidget_currentChanged(int index)
     }
 }
 
-
 void MainWindow::on_lineEditPatientName_textEdited(const QString &arg1)
 {
     m_patientDataChangedSinceLastSave = true;
 }
-
 
 void MainWindow::on_lineEditPatientDateOfBirth_textEdited(const QString &arg1)
 {
@@ -1063,7 +1052,6 @@ void MainWindow::on_pushButtonDeleteSelectedBloodSample_clicked()
     }
 }
 
-
 void MainWindow::on_pushButtonDeleteSelectedChemoAndMed_clicked()
 {
     auto ret = deleteSelectedTableRows(*(ui->tableWidgetChemoAndMeds));
@@ -1074,4 +1062,3 @@ void MainWindow::on_pushButtonDeleteSelectedChemoAndMed_clicked()
         m_patientDataChangedSinceLastSave = true;
     }
 }
-
