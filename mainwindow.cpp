@@ -905,9 +905,10 @@ void MainWindow::on_actionOpenPatientDataFile_triggered()
 
     QFileInfo patientDataFileInfo(m_previousPatientDataFileName);
 
-    QString patientDataFileName = QFileDialog::getOpenFileName(this, tr("Open File"),
-                                                    patientDataFileInfo.absolutePath(),
-                                                    tr("JSON (*.json)"));
+    QString patientDataFileName = QFileDialog::getOpenFileName(this,
+                                                               tr("Open File"),
+                                                               patientDataFileInfo.absolutePath(),
+                                                               tr("JSON (*.json)"));
 
     // If the file open dialog has been cancelled by the user, file name is "", so length is 0.
     if(patientDataFileName.length())
