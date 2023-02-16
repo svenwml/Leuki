@@ -1,0 +1,34 @@
+{
+    "bloodSamples": [
+        {
+            "date": "15.02.2023",
+            "erythrocytes": 5.1,
+            "hemoglobin": 16.2,
+            "leukocytes": 6.4,
+            "thrombocytes": 250
+        },
+        {
+            "date": "16.02.2023",
+            "erythrocytes": 5.2,
+            "hemoglobin": 16.1,
+            "leukocytes": 6.2,
+            "thrombocytes": 248
+        }
+    ],
+    "chemoTherapyAndMedicamentation": [
+        {
+            "date": "15.02.2023",
+            "days": "1",
+            "dose": "Testdose 1",
+            "name": "Testmedicamentation 1"
+        },
+        {
+            "date": "16.02.2023",
+            "days": "1",
+            "dose": "Testdose 2",
+            "name": "Testmedicamentation 2"
+        }
+    ],
+    "dateOfBirth": "01.01.1970",
+    "name": "John Doe"
+}
