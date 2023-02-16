@@ -708,7 +708,7 @@ void MainWindow::plotVisualization()
             textLabel->position->setPixelPosition(QPointF(ui->customPlot->xAxis->coordToPixel(static_cast<double>(secondsSinceEpoch) +
                                                                                               (static_cast<double>(days - 1) * 0.5) *
                                                                                               static_cast<double>(secondsPerDay)),
-            ui->customPlot->yAxis->coordToPixel(0) + lengthVisualizationArrowPixels));
+                                                          ui->customPlot->yAxis->coordToPixel(0) + lengthVisualizationArrowPixels));
 
             QString name = "";
             QString dose = "";
