@@ -75,6 +75,7 @@ private:
     qsizetype deleteSelectedTableRows(QTableWidget&);
     void sortEditedTableRow(QTableWidget&, int, int);
     bool checkDateFormat(QString);
+    void handleDateCellChange(QTableWidget&, int, int);
     void askPatientDataFileSave();
     void plotVisualization();
 };

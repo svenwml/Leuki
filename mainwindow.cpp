@@ -500,6 +500,29 @@ bool MainWindow::checkDateFormat(QString dateString)
     return ret;
 }
 
+// Handles a user-initiated change in a date table cell. Triggers date validation
+// and sorting of the table.
+void MainWindow::handleDateCellChange(QTableWidget& table, int row, int column)
+{
+    QString dateString = table.item(row, column)->text();
+
+    if(!checkDateFormat(dateString))
+    {
+        QMessageBox::information(this,
+                                 "Leuki - Invalid Date Entry",
+                                 "Warning: Table Row " + QString::number(row + 1) +
+                                 " contains an invalid date entry (" +
+                                 dateString +
+                                 ")! Format must be dd.MM.yyyy .");
+    }
+    else if (!m_internalTableModificationsInProgress)
+    {
+        sortEditedTableRow(table,
+                           row,
+                           column);
+    }
+}
+
 void MainWindow::askPatientDataFileSave()
 {
     auto ret = QMessageBox::question(this,
@@ -960,23 +983,7 @@ void MainWindow::on_tableWidgetBloodSamples_cellChanged(int row, int column)
     // Check date format, must be dd.MM.yyyy .
     if(column == tableWidgetBloodSamplesColumns.indexOf("Date"))
     {
-        QString dateString = ui->tableWidgetBloodSamples->item(row, column)->text();
-
-        if(!checkDateFormat(dateString))
-        {
-            QMessageBox::information(this,
-                                     "Leuki - Invalid Date Entry",
-                                     "Warning: Table Row " + QString::number(row + 1) +
-                                     " contains an invalid date entry (" +
-                                     dateString +
-                                     ")! Format must be dd.MM.yyyy .");
-        }
-        else if (!m_internalTableModificationsInProgress)
-        {
-            sortEditedTableRow(*(ui->tableWidgetBloodSamples),
-                               row,
-                               tableWidgetBloodSamplesColumns.indexOf("Date"));
-        }
+        handleDateCellChange(*(ui->tableWidgetBloodSamples), row, column);
     }
 
     // If the cell data is not changed by the application itself during patient data
@@ -993,23 +1000,7 @@ void MainWindow::on_tableWidgetChemoAndMeds_cellChanged(int row, int column)
     // Check date format, must be dd.MM.yyyy .
     if(column == tableWidgetChemoAndMedsColumns.indexOf("Date (Start)"))
     {
-        QString dateString = ui->tableWidgetChemoAndMeds->item(row, column)->text();
-
-        if(!checkDateFormat(dateString))
-        {
-            QMessageBox::information(this,
-                                     "Leuki - Invalid Date Entry",
-                                     "Warning: Table Row " + QString::number(row + 1) +
-                                     " contains an invalid date entry (" +
-                                     dateString +
-                                     ")! Format must be dd.MM.yyyy .");
-        }
-        else if (!m_internalTableModificationsInProgress)
-        {
-            sortEditedTableRow(*(ui->tableWidgetChemoAndMeds),
-                               row,
-                               tableWidgetChemoAndMedsColumns.indexOf("Date (Start)"));
-        }
+        handleDateCellChange(*(ui->tableWidgetChemoAndMeds), row, column);
     }
 
     // If the cell data is not changed by the application itself during patient data
