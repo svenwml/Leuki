@@ -7,6 +7,31 @@ const char* leukiSettingsDefault =
 #include "leukiSettingsDefault.txt"
 ;
 
+const static QVector<QString> tabWidgetTabs
+{
+    "General Information",
+    "Blood Samples",
+    "Chemo Therapy / Medicamentation",
+    "Visualization"
+};
+
+const static QVector<QString> tableWidgetBloodSamplesColumns
+{
+    "Date",
+    "Leukocytes",
+    "Erythrocytes",
+    "Hemoglobin",
+    "Thrombocytes"
+};
+
+const static QVector<QString> tableWidgetChemoAndMedsColumns
+{
+    "Date (Start)",
+    "Name",
+    "Dose per Day",
+    "Days"
+};
+
 const static unsigned int heightVisualizationTextLabelPixels = 45;
 const static unsigned int lengthVisualizationArrowPixels = 15;
 
@@ -117,20 +142,21 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Prepare tables.
 
-    ui->tableWidgetBloodSamples->setColumnCount(5);
-    ui->tableWidgetBloodSamples->setHorizontalHeaderItem(0, new QTableWidgetItem("Date"));
-    ui->tableWidgetBloodSamples->setHorizontalHeaderItem(1, new QTableWidgetItem("Leukocytes"));
-    ui->tableWidgetBloodSamples->setHorizontalHeaderItem(2, new QTableWidgetItem("Erythrocytes"));
-    ui->tableWidgetBloodSamples->setHorizontalHeaderItem(3, new QTableWidgetItem("Hemoglobin"));
-    ui->tableWidgetBloodSamples->setHorizontalHeaderItem(4, new QTableWidgetItem("Thrombocytes"));
+    ui->tableWidgetBloodSamples->setColumnCount(static_cast<int>(tableWidgetBloodSamplesColumns.size()));
+
+    for(auto i = 0; i < tableWidgetBloodSamplesColumns.size(); i++)
+    {
+        ui->tableWidgetBloodSamples->setHorizontalHeaderItem(i, new QTableWidgetItem(tableWidgetBloodSamplesColumns[i]));
+    }
 
     ui->tableWidgetBloodSamples->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-    ui->tableWidgetChemoAndMeds->setColumnCount(4);
-    ui->tableWidgetChemoAndMeds->setHorizontalHeaderItem(0, new QTableWidgetItem("Date (Start)"));
-    ui->tableWidgetChemoAndMeds->setHorizontalHeaderItem(1, new QTableWidgetItem("Name"));
-    ui->tableWidgetChemoAndMeds->setHorizontalHeaderItem(2, new QTableWidgetItem("Dose per Day"));
-    ui->tableWidgetChemoAndMeds->setHorizontalHeaderItem(3, new QTableWidgetItem("Days"));
+    ui->tableWidgetChemoAndMeds->setColumnCount(static_cast<int>(tableWidgetChemoAndMedsColumns.size()));
+
+    for(auto i = 0; i < tableWidgetChemoAndMedsColumns.size(); i++)
+    {
+        ui->tableWidgetChemoAndMeds->setHorizontalHeaderItem(i, new QTableWidgetItem(tableWidgetChemoAndMedsColumns[i]));
+    }
 
     ui->tableWidgetChemoAndMeds->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
@@ -214,7 +240,9 @@ void MainWindow::loadPatientDataFile(QString& patientDataFileName)
     {
         // Date
         QString dateString = patientDataJsonObject["bloodSamples"][i]["date"].toString();
-        ui->tableWidgetBloodSamples->setItem(i, 0, new QTableWidgetItem(dateString));
+        ui->tableWidgetBloodSamples->setItem(i,
+                                             tableWidgetBloodSamplesColumns.indexOf("Date"),
+                                             new QTableWidgetItem(dateString));
 
         // We expect the values to be of type double. If not, user may have entered nothing so we expect an
         // empty string so we ignore the value for the graph.
@@ -224,44 +252,60 @@ void MainWindow::loadPatientDataFile(QString& patientDataFileName)
         if(patientDataJsonObject["bloodSamples"][i]["leukocytes"].isDouble())
         {
             double leukocytes = patientDataJsonObject["bloodSamples"][i]["leukocytes"].toDouble();
-            ui->tableWidgetBloodSamples->setItem(i, 1, new QTableWidgetItem(QString::number(leukocytes)));
+            ui->tableWidgetBloodSamples->setItem(i,
+                                                 tableWidgetBloodSamplesColumns.indexOf("Leukocytes"),
+                                                 new QTableWidgetItem(QString::number(leukocytes)));
         }
         else if(patientDataJsonObject["bloodSamples"][i]["leukocytes"].isString())
         {
-            ui->tableWidgetBloodSamples->setItem(i, 1, new QTableWidgetItem(patientDataJsonObject["bloodSamples"][i]["leukocytes"].toString()));
+            ui->tableWidgetBloodSamples->setItem(i,
+                                                 tableWidgetBloodSamplesColumns.indexOf("Leukocytes"),
+                                                 new QTableWidgetItem(patientDataJsonObject["bloodSamples"][i]["leukocytes"].toString()));
         }
 
         // Erythrocytes
 
         if(patientDataJsonObject["bloodSamples"][i]["erythrocytes"].isDouble())
         {
-            ui->tableWidgetBloodSamples->setItem(i, 2, new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["erythrocytes"].toDouble())));
+            ui->tableWidgetBloodSamples->setItem(i,
+                                                 tableWidgetBloodSamplesColumns.indexOf("Erythrocytes"),
+                                                 new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["erythrocytes"].toDouble())));
         }
         else if(patientDataJsonObject["bloodSamples"][i]["erythrocytes"].isString())
         {
-            ui->tableWidgetBloodSamples->setItem(i, 2, new QTableWidgetItem(patientDataJsonObject["bloodSamples"][i]["erythrocytes"].toString()));
+            ui->tableWidgetBloodSamples->setItem(i,
+                                                 tableWidgetBloodSamplesColumns.indexOf("Erythrocytes"),
+                                                 new QTableWidgetItem(patientDataJsonObject["bloodSamples"][i]["erythrocytes"].toString()));
         }
 
         // Hemoglobin
 
         if(patientDataJsonObject["bloodSamples"][i]["hemoglobin"].isDouble())
         {
-            ui->tableWidgetBloodSamples->setItem(i, 3, new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["hemoglobin"].toDouble())));
+            ui->tableWidgetBloodSamples->setItem(i,
+                                                 tableWidgetBloodSamplesColumns.indexOf("Hemoglobin"),
+                                                 new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["hemoglobin"].toDouble())));
         }
         else if(patientDataJsonObject["bloodSamples"][i]["hemoglobin"].isString())
         {
-            ui->tableWidgetBloodSamples->setItem(i, 3, new QTableWidgetItem(patientDataJsonObject["bloodSamples"][i]["hemoglobin"].toString()));
+            ui->tableWidgetBloodSamples->setItem(i,
+                                                 tableWidgetBloodSamplesColumns.indexOf("Hemoglobin"),
+                                                 new QTableWidgetItem(patientDataJsonObject["bloodSamples"][i]["hemoglobin"].toString()));
         }
 
         // Thrombocytes
 
         if(patientDataJsonObject["bloodSamples"][i]["thrombocytes"].isDouble())
         {
-            ui->tableWidgetBloodSamples->setItem(i, 4, new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["thrombocytes"].toDouble())));
+            ui->tableWidgetBloodSamples->setItem(i,
+                                                 tableWidgetBloodSamplesColumns.indexOf("Thrombocytes"),
+                                                 new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["thrombocytes"].toDouble())));
         }
         else if(patientDataJsonObject["bloodSamples"][i]["thrombocytes"].isString())
         {
-            ui->tableWidgetBloodSamples->setItem(i, 4, new QTableWidgetItem(patientDataJsonObject["bloodSamples"][i]["thrombocytes"].toString()));
+            ui->tableWidgetBloodSamples->setItem(i,
+                                                 tableWidgetBloodSamplesColumns.indexOf("Thrombocytes"),
+                                                 new QTableWidgetItem(patientDataJsonObject["bloodSamples"][i]["thrombocytes"].toString()));
         }
     }
 
@@ -273,19 +317,25 @@ void MainWindow::loadPatientDataFile(QString& patientDataFileName)
     {
         // Date
         QString dateString = patientDataJsonObject["chemoTherapyAndMedicamentation"][i]["date"].toString();
-        ui->tableWidgetChemoAndMeds->setItem(i, 0, new QTableWidgetItem(dateString));
+        ui->tableWidgetChemoAndMeds->setItem(i, tableWidgetChemoAndMedsColumns.indexOf("Date (Start)"), new QTableWidgetItem(dateString));
 
         // Name
         QString nameString = patientDataJsonObject["chemoTherapyAndMedicamentation"][i]["name"].toString();
-        ui->tableWidgetChemoAndMeds->setItem(i, 1, new QTableWidgetItem(nameString));
+        ui->tableWidgetChemoAndMeds->setItem(i,
+                                             tableWidgetChemoAndMedsColumns.indexOf("Name"),
+                                             new QTableWidgetItem(nameString));
 
         // Dose
         QString doseString = patientDataJsonObject["chemoTherapyAndMedicamentation"][i]["dose"].toString();
-        ui->tableWidgetChemoAndMeds->setItem(i, 2, new QTableWidgetItem(doseString));
+        ui->tableWidgetChemoAndMeds->setItem(i,
+                                             tableWidgetChemoAndMedsColumns.indexOf("Dose per Day"),
+                                             new QTableWidgetItem(doseString));
 
         // Days
         QString daysString = patientDataJsonObject["chemoTherapyAndMedicamentation"][i]["days"].toString();
-        ui->tableWidgetChemoAndMeds->setItem(i, 3, new QTableWidgetItem(daysString));
+        ui->tableWidgetChemoAndMeds->setItem(i,
+                                             tableWidgetChemoAndMedsColumns.indexOf("Days"),
+                                             new QTableWidgetItem(daysString));
     }
 
     m_internalTableModificationsInProgress = false;
@@ -376,21 +426,21 @@ qsizetype MainWindow::deleteSelectedTableRows(QTableWidget& qTableWidget)
 }
 
 // Sorts the passed row of the passed table in the table so that table is sorted date ascending.
-void MainWindow::sortEditedTableRow(QTableWidget& table, int row)
+void MainWindow::sortEditedTableRow(QTableWidget& table, int row, int dateColumn)
 {
     // Re-Sort if required.
-    auto dateOfEditedRow = QDateTime::fromString(table.item(row, 0)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
+    auto dateOfEditedRow = QDateTime::fromString(table.item(row, dateColumn)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
 
     int rowToMoveNewItemTo = 0;
 
     for(int i = 0; i < table.rowCount() - 1; i++)
     {
-        auto dateOfCurrentRow = QDateTime::fromString(table.item(i, 0)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
+        auto dateOfCurrentRow = QDateTime::fromString(table.item(i, dateColumn)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
         long long dateOfNextRow = LLONG_MAX;
 
         if(i < table.rowCount() - 2)
         {
-           dateOfNextRow = QDateTime::fromString(table.item(i + 1, 0)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
+           dateOfNextRow = QDateTime::fromString(table.item(i + 1, dateColumn)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
         }
 
         // Edited item must be placed before first item.
@@ -499,13 +549,14 @@ void MainWindow::plotVisualization()
     auto bloodSamplesCount = ui->tableWidgetBloodSamples->rowCount();
     double yAxisMax = 0.0;
 
-    for(auto column = 1; column < 5; column++)
+    // At this point, assume that the first column (index 0) is the date column.
+    for(auto column = tableWidgetBloodSamplesColumns.indexOf("Date") + 1; column < tableWidgetBloodSamplesColumns.size(); column++)
     {
         ui->customPlot->addGraph();
         ui->customPlot->graph(column - 1)->setLineStyle(QCPGraph::lsLine);
         ui->customPlot->graph(column - 1)->setScatterStyle(QCPScatterStyle::ssStar);
 
-        if(column == 1)
+        if(column == tableWidgetBloodSamplesColumns.indexOf("Leukocytes"))
         {
             if(!ui->checkBoxVisualizationShowLeukocytes->isChecked())
             {
@@ -514,7 +565,7 @@ void MainWindow::plotVisualization()
 
             ui->customPlot->graph(column - 1)->setPen(QPen(Qt::blue));
         }
-        else if(column == 2)
+        else if(column == tableWidgetBloodSamplesColumns.indexOf("Erythrocytes"))
         {
             if(!ui->checkBoxVisualizationShowErythrocytes->isChecked())
             {
@@ -523,7 +574,7 @@ void MainWindow::plotVisualization()
 
             ui->customPlot->graph(column - 1)->setPen(QPen(Qt::red));
         }
-        else if(column == 3)
+        else if(column == tableWidgetBloodSamplesColumns.indexOf("Hemoglobin"))
         {
             if(!ui->checkBoxVisualizationShowHemoglobin->isChecked())
             {
@@ -532,7 +583,7 @@ void MainWindow::plotVisualization()
 
             ui->customPlot->graph(column - 1)->setPen(QPen(Qt::magenta));
         }
-        else if(column == 4)
+        else if(column == tableWidgetBloodSamplesColumns.indexOf("Thrombocytes"))
         {
             if(!ui->checkBoxVisualizationShowThrombocytes->isChecked())
             {
@@ -551,15 +602,15 @@ void MainWindow::plotVisualization()
         for(auto bloodSampleIndex = 0; bloodSampleIndex < bloodSamplesCount; bloodSampleIndex++)
         {
             if(// Ignore cells of rows with an invalid date.
-               ui->tableWidgetBloodSamples->item(bloodSampleIndex, 0) &&
-               checkDateFormat(ui->tableWidgetBloodSamples->item(bloodSampleIndex, 0)->text()) &&
+               ui->tableWidgetBloodSamples->item(bloodSampleIndex, tableWidgetBloodSamplesColumns.indexOf("Date")) &&
+               checkDateFormat(ui->tableWidgetBloodSamples->item(bloodSampleIndex, tableWidgetBloodSamplesColumns.indexOf("Date"))->text()) &&
                // Ignore empty cells.
                ui->tableWidgetBloodSamples->item(bloodSampleIndex, column) &&
                ui->tableWidgetBloodSamples->item(bloodSampleIndex, column)->text() != "")
             {
                 QCPGraphData graphPoint;
 
-                graphPoint.key = QDateTime::fromString(ui->tableWidgetBloodSamples->item(bloodSampleIndex, 0)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
+                graphPoint.key = QDateTime::fromString(ui->tableWidgetBloodSamples->item(bloodSampleIndex, tableWidgetBloodSamplesColumns.indexOf("Date"))->text(), "dd.MM.yyyy").toSecsSinceEpoch();
                 graphPoint.value = ui->tableWidgetBloodSamples->item(bloodSampleIndex, column)->text().toDouble();
 
                 graphData.append(graphPoint);
@@ -582,10 +633,10 @@ void MainWindow::plotVisualization()
 
         for(auto i = 0; i < ui->tableWidgetBloodSamples->rowCount(); i++)
         {
-            if(ui->tableWidgetBloodSamples->item(i, 0) &&
+            if(ui->tableWidgetBloodSamples->item(i, tableWidgetBloodSamplesColumns.indexOf("Date")) &&
                checkDateFormat(ui->tableWidgetBloodSamples->item(i, 0)->text()))
             {
-                firstBloodSampleDateSecsSinceEpoch = QDateTime::fromString(ui->tableWidgetBloodSamples->item(0, 0)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
+                firstBloodSampleDateSecsSinceEpoch = QDateTime::fromString(ui->tableWidgetBloodSamples->item(0, tableWidgetBloodSamplesColumns.indexOf("Date"))->text(), "dd.MM.yyyy").toSecsSinceEpoch();
                 entryFound = true;
                 break;
             }
@@ -599,10 +650,10 @@ void MainWindow::plotVisualization()
 
             for(auto i = ui->tableWidgetBloodSamples->rowCount() - 1; i >= 0; i--)
             {
-                if(ui->tableWidgetBloodSamples->item(i, 0) &&
-                   checkDateFormat(ui->tableWidgetBloodSamples->item(i, 0)->text()))
+                if(ui->tableWidgetBloodSamples->item(i, tableWidgetBloodSamplesColumns.indexOf("Date")) &&
+                   checkDateFormat(ui->tableWidgetBloodSamples->item(i, tableWidgetBloodSamplesColumns.indexOf("Date"))->text()))
                 {
-                    lastBloodSampleDateSecsSinceEpoch = QDateTime::fromString(ui->tableWidgetBloodSamples->item(i, 0)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
+                    lastBloodSampleDateSecsSinceEpoch = QDateTime::fromString(ui->tableWidgetBloodSamples->item(i, tableWidgetBloodSamplesColumns.indexOf("Date"))->text(), "dd.MM.yyyy").toSecsSinceEpoch();
                     entryFound = true;
                     break;
                 }
@@ -629,13 +680,13 @@ void MainWindow::plotVisualization()
 
         for(auto i = 0; i < chemoAndMedsCount; i++)
         {
-            auto secondsSinceEpoch = QDateTime::fromString(ui->tableWidgetChemoAndMeds->item(i, 0)->text(), "dd.MM.yyyy").toSecsSinceEpoch();
+            auto secondsSinceEpoch = QDateTime::fromString(ui->tableWidgetChemoAndMeds->item(i, tableWidgetChemoAndMedsColumns.indexOf("Date (Start)"))->text(), "dd.MM.yyyy").toSecsSinceEpoch();
             int days = 1;
 
-            if(ui->tableWidgetChemoAndMeds->item(i, 3))
+            if(ui->tableWidgetChemoAndMeds->item(i, tableWidgetChemoAndMedsColumns.indexOf("Days")))
             {
                 bool conversionSuccessful = false;
-                int ret = ui->tableWidgetChemoAndMeds->item(i, 3)->text().toInt(&conversionSuccessful);
+                int ret = ui->tableWidgetChemoAndMeds->item(i, tableWidgetChemoAndMedsColumns.indexOf("Days"))->text().toInt(&conversionSuccessful);
 
                 if(conversionSuccessful)
                 {
@@ -660,14 +711,14 @@ void MainWindow::plotVisualization()
 
             // Check cells for content before evaluating to avoid nullptr-access.
 
-            if(ui->tableWidgetChemoAndMeds->item(i, 1))
+            if(ui->tableWidgetChemoAndMeds->item(i, tableWidgetChemoAndMedsColumns.indexOf("Name")))
             {
-                name = ui->tableWidgetChemoAndMeds->item(i, 1)->text();
+                name = ui->tableWidgetChemoAndMeds->item(i, tableWidgetChemoAndMedsColumns.indexOf("Name"))->text();
             }
 
-            if(ui->tableWidgetChemoAndMeds->item(i, 2))
+            if(ui->tableWidgetChemoAndMeds->item(i, tableWidgetChemoAndMedsColumns.indexOf("Dose per Day")))
             {
-                dose = ui->tableWidgetChemoAndMeds->item(i, 2)->text();
+                dose = ui->tableWidgetChemoAndMeds->item(i, tableWidgetChemoAndMedsColumns.indexOf("Dose per Day"))->text();
             }
 
             textLabel->setText(name + "\n" + dose);
@@ -733,32 +784,32 @@ void MainWindow::on_actionSettingsSaveAs_triggered()
     {
         QJsonObject bloodSamplesJsonObject;
 
-        bloodSamplesJsonObject["date"] = ui->tableWidgetBloodSamples->item(i, 0)->text();
+        bloodSamplesJsonObject["date"] = ui->tableWidgetBloodSamples->item(i, tableWidgetBloodSamplesColumns.indexOf("Date"))->text();
 
         bool conversionSuccessful = false;
 
-        bloodSamplesJsonObject["leukocytes"] = ui->tableWidgetBloodSamples->item(i, 1)->text().toDouble(&conversionSuccessful);
+        bloodSamplesJsonObject["leukocytes"] = ui->tableWidgetBloodSamples->item(i, tableWidgetBloodSamplesColumns.indexOf("Leukocytes"))->text().toDouble(&conversionSuccessful);
 
         if(!conversionSuccessful)
         {
             bloodSamplesJsonObject["leukocytes"] = "";
         }
 
-        bloodSamplesJsonObject["erythrocytes"] = ui->tableWidgetBloodSamples->item(i, 2)->text().toDouble(&conversionSuccessful);
+        bloodSamplesJsonObject["erythrocytes"] = ui->tableWidgetBloodSamples->item(i, tableWidgetBloodSamplesColumns.indexOf("Erythrocytes"))->text().toDouble(&conversionSuccessful);
 
         if(!conversionSuccessful)
         {
             bloodSamplesJsonObject["erythrocytes"] = "";
         }
 
-        bloodSamplesJsonObject["hemoglobin"] = ui->tableWidgetBloodSamples->item(i, 3)->text().toDouble(&conversionSuccessful);
+        bloodSamplesJsonObject["hemoglobin"] = ui->tableWidgetBloodSamples->item(i, tableWidgetBloodSamplesColumns.indexOf("Hemoglobin"))->text().toDouble(&conversionSuccessful);
 
         if(!conversionSuccessful)
         {
             bloodSamplesJsonObject["hemoglobin"] = "";
         }
 
-        bloodSamplesJsonObject["thrombocytes"] = ui->tableWidgetBloodSamples->item(i, 4)->text().toDouble(&conversionSuccessful);
+        bloodSamplesJsonObject["thrombocytes"] = ui->tableWidgetBloodSamples->item(i, tableWidgetBloodSamplesColumns.indexOf("Thrombocytes"))->text().toDouble(&conversionSuccessful);
 
         if(!conversionSuccessful)
         {
@@ -780,10 +831,10 @@ void MainWindow::on_actionSettingsSaveAs_triggered()
     {
         QJsonObject chemoAndMedsJsonObject;
 
-        chemoAndMedsJsonObject["date"] = ui->tableWidgetChemoAndMeds->item(i, 0)->text();
-        chemoAndMedsJsonObject["name"] = ui->tableWidgetChemoAndMeds->item(i, 1)->text();
-        chemoAndMedsJsonObject["dose"] = ui->tableWidgetChemoAndMeds->item(i, 2)->text();
-        chemoAndMedsJsonObject["days"] = ui->tableWidgetChemoAndMeds->item(i, 3)->text();
+        chemoAndMedsJsonObject["date"] = ui->tableWidgetChemoAndMeds->item(i, tableWidgetChemoAndMedsColumns.indexOf("Date (Start)"))->text();
+        chemoAndMedsJsonObject["name"] = ui->tableWidgetChemoAndMeds->item(i, tableWidgetChemoAndMedsColumns.indexOf("Name"))->text();
+        chemoAndMedsJsonObject["dose"] = ui->tableWidgetChemoAndMeds->item(i, tableWidgetChemoAndMedsColumns.indexOf("Dose"))->text();
+        chemoAndMedsJsonObject["days"] = ui->tableWidgetChemoAndMeds->item(i, tableWidgetChemoAndMedsColumns.indexOf("Days"))->text();
 
         chemoAndMedsArray.push_back(chemoAndMedsJsonObject);
     }
@@ -872,7 +923,7 @@ void MainWindow::on_actionSettings_triggered()
 void MainWindow::on_tableWidgetBloodSamples_cellChanged(int row, int column)
 {
     // Check date format, must be dd.MM.yyyy .
-    if(column == 0)
+    if(column == tableWidgetBloodSamplesColumns.indexOf("Date"))
     {
         QString dateString = ui->tableWidgetBloodSamples->item(row, column)->text();
 
@@ -887,7 +938,9 @@ void MainWindow::on_tableWidgetBloodSamples_cellChanged(int row, int column)
         }
         else if (!m_internalTableModificationsInProgress)
         {
-            sortEditedTableRow(*(ui->tableWidgetBloodSamples), row);
+            sortEditedTableRow(*(ui->tableWidgetBloodSamples),
+                               row,
+                               tableWidgetBloodSamplesColumns.indexOf("Date"));
         }
     }
 
@@ -904,7 +957,7 @@ void MainWindow::on_tableWidgetBloodSamples_cellChanged(int row, int column)
 void MainWindow::on_tableWidgetChemoAndMeds_cellChanged(int row, int column)
 {
     // Check date format, must be dd.MM.yyyy .
-    if(column == 0)
+    if(column == tableWidgetChemoAndMedsColumns.indexOf("Date (Start)"))
     {
         QString dateString = ui->tableWidgetChemoAndMeds->item(row, column)->text();
 
@@ -919,7 +972,9 @@ void MainWindow::on_tableWidgetChemoAndMeds_cellChanged(int row, int column)
         }
         else if (!m_internalTableModificationsInProgress)
         {
-            sortEditedTableRow(*(ui->tableWidgetChemoAndMeds), row);
+            sortEditedTableRow(*(ui->tableWidgetChemoAndMeds),
+                               row,
+                               tableWidgetChemoAndMedsColumns.indexOf("Date (Start)"));
         }
     }
 
@@ -936,7 +991,7 @@ void MainWindow::on_tableWidgetChemoAndMeds_cellChanged(int row, int column)
 void MainWindow::on_tabWidget_currentChanged(int index)
 {
     // If visualization tab is clicked, replot if table data has been changed since last plot.
-    if(index == 3 && m_tableDataChangedSinceLastVisualizationPlot)
+    if(index == tabWidgetTabs.indexOf("Visualization") && m_tableDataChangedSinceLastVisualizationPlot)
     {
         m_tableDataChangedSinceLastVisualizationPlot = false;
         plotVisualization();

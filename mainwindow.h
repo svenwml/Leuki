@@ -64,7 +64,7 @@ private:
     void saveSettingsFile();
     void ensureTableWidgetCellsAreNotNull(QTableWidget&);
     qsizetype deleteSelectedTableRows(QTableWidget&);
-    void sortEditedTableRow(QTableWidget&, int);
+    void sortEditedTableRow(QTableWidget&, int, int);
     bool checkDateFormat(QString);
     void askPatientDataFileSave();
     void plotVisualization();
