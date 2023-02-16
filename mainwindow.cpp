@@ -35,6 +35,10 @@ const static QVector<QString> tableWidgetChemoAndMedsColumns
 const static unsigned int heightVisualizationTextLabelPixels = 45;
 const static unsigned int lengthVisualizationArrowPixels = 15;
 
+const static unsigned int hoursPerDay = 24;
+const static unsigned int secondsPerHour = 3600;
+const static unsigned int secondsPerDay = hoursPerDay * secondsPerHour;
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -669,7 +673,7 @@ void MainWindow::plotVisualization()
             return;
         }
 
-        ui->customPlot->xAxis->setRange(firstBloodSampleDateSecsSinceEpoch - 24*3600, lastBloodSampleDateSecsSinceEpoch + 24*3600);
+        ui->customPlot->xAxis->setRange(firstBloodSampleDateSecsSinceEpoch - secondsPerDay, lastBloodSampleDateSecsSinceEpoch + secondsPerDay);
     }
 
     ui->customPlot->yAxis->setRange(0, yAxisMax);
@@ -703,7 +707,7 @@ void MainWindow::plotVisualization()
             // Place the label in the middle of it's time span.
             textLabel->position->setPixelPosition(QPointF(ui->customPlot->xAxis->coordToPixel(static_cast<double>(secondsSinceEpoch) +
                                                                                               (static_cast<double>(days - 1) * 0.5) *
-                                                                                              static_cast<double>(24 * 3600)),
+                                                                                              static_cast<double>(secondsPerDay)),
             ui->customPlot->yAxis->coordToPixel(0) + lengthVisualizationArrowPixels));
 
             QString name = "";
@@ -729,7 +733,7 @@ void MainWindow::plotVisualization()
                 // Arrow from text label to x-axis
                 QCPItemLine *arrow = new QCPItemLine(ui->customPlot);
                 arrow->start->setParentAnchor(textLabel->top);
-                arrow->end->setCoords(secondsSinceEpoch + i * 24 * 3600, 0);
+                arrow->end->setCoords(secondsSinceEpoch + i * secondsPerDay, 0);
                 arrow->setHead(QCPLineEnding::esSpikeArrow);
             }
         }
