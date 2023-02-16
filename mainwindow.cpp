@@ -27,9 +27,9 @@ const static QVector<QString> tableWidgetBloodSamplesColumns
 const static QVector<QString> tableWidgetChemoAndMedsColumns
 {
     "Date (Start)",
+    "Days",
     "Name",
-    "Dose per Day",
-    "Days"
+    "Dose per Day"
 };
 
 const static unsigned int heightVisualizationTextLabelPixels = 45;
