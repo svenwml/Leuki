@@ -678,8 +678,12 @@ void MainWindow::plotVisualization()
 
     ui->customPlot->yAxis->setRange(0, yAxisMax);
 
+    unsigned int maxTextLabelsStacked = 0;
+
     if(ui->checkBoxVisualizationShowMedicamentationAndChemoTherapy->isChecked())
     {
+        m_textLabelStatistics.clear();
+
         auto chemoAndMedsCount = ui->tableWidgetChemoAndMeds->rowCount();
 
         for(auto i = 0; i < chemoAndMedsCount; i++)
@@ -704,11 +708,44 @@ void MainWindow::plotVisualization()
             textLabel->setPositionAlignment(Qt::AlignTop|Qt::AlignHCenter);
             textLabel->position->setType(QCPItemPosition::ptPlotCoords);
 
+            // Check how many labels are already placed at the current x-axis position.
+            unsigned int textLabelsAtCurrentXAxisPosition = 0;
+            bool entryFound = false;
+
+            for(auto i = 0; i < m_textLabelStatistics.size(); i++)
+            {
+                if(m_textLabelStatistics[i].dateSecondsSinceEpoch == secondsSinceEpoch)
+                {
+                    m_textLabelStatistics[i].textLabelCount++;
+                    textLabelsAtCurrentXAxisPosition = m_textLabelStatistics[i].textLabelCount;
+                    entryFound = true;
+                    break;
+                }
+            }
+
+            if(!entryFound)
+            {
+                text_label_statistics_item_t m_textLabelStatisticsItem;
+                m_textLabelStatisticsItem.dateSecondsSinceEpoch = secondsSinceEpoch;
+                m_textLabelStatisticsItem.textLabelCount = 1;
+                textLabelsAtCurrentXAxisPosition = 1;
+
+                m_textLabelStatistics.push_back(m_textLabelStatisticsItem);
+            }
+
             // Place the label in the middle of it's time span.
             textLabel->position->setPixelPosition(QPointF(ui->customPlot->xAxis->coordToPixel(static_cast<double>(secondsSinceEpoch) +
                                                                                               (static_cast<double>(days - 1) * 0.5) *
                                                                                               static_cast<double>(secondsPerDay)),
-                                                          ui->customPlot->yAxis->coordToPixel(0) + lengthVisualizationArrowPixels));
+                                                                                              ui->customPlot->yAxis->coordToPixel(0) +
+                                                                                              lengthVisualizationArrowPixels +
+                                                                                              heightVisualizationTextLabelPixels *
+                                                                                              (textLabelsAtCurrentXAxisPosition - 1)));
+
+            if(textLabelsAtCurrentXAxisPosition > maxTextLabelsStacked)
+            {
+                maxTextLabelsStacked = textLabelsAtCurrentXAxisPosition;
+            }
 
             QString name = "";
             QString dose = "";
@@ -740,7 +777,7 @@ void MainWindow::plotVisualization()
     }
 
     auto yAxisPixelsPerStep = abs(ui->customPlot->yAxis->coordToPixel(1) - ui->customPlot->yAxis->coordToPixel(0));
-    auto yAxisMin = - ((heightVisualizationTextLabelPixels + lengthVisualizationArrowPixels) / yAxisPixelsPerStep);
+    auto yAxisMin = - ((heightVisualizationTextLabelPixels * maxTextLabelsStacked + lengthVisualizationArrowPixels) / yAxisPixelsPerStep);
 
     ui->customPlot->yAxis->setRange(yAxisMin, yAxisMax);
 

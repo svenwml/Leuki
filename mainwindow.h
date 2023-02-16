@@ -60,6 +60,15 @@ private:
     bool m_tableDataChangedSinceLastVisualizationPlot;
     bool m_patientDataChangedSinceLastSave;
     bool m_internalTableModificationsInProgress;
+
+    typedef struct
+    {
+        int dateSecondsSinceEpoch;
+        unsigned int textLabelCount;
+    } text_label_statistics_item_t;
+
+    std::vector<text_label_statistics_item_t> m_textLabelStatistics;
+
     void loadPatientDataFile(QString&);
     void saveSettingsFile();
     void ensureTableWidgetCellsAreNotNull(QTableWidget&);
