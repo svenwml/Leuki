@@ -542,7 +542,7 @@ void MainWindow::plotVisualization()
     }
 
     // Remove leading ", "
-    yAxisLabel.remove(0, 2);
+    yAxisLabel.remove(0, std::string(", ").length());
 
     ui->customPlot->yAxis->setLabel(yAxisLabel);
 
