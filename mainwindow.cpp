@@ -428,6 +428,9 @@ void MainWindow::sortEditedTableRow(QTableWidget& table, int row)
         // Delete new user-added row after copying.
         table.removeRow(row + 1);
 
+        // Scroll to new added row.
+        table.scrollTo(table.model()->index(rowToMoveNewItemTo, 0));
+
         m_internalTableModificationsInProgress = false;
     }
 }
