@@ -53,6 +53,8 @@ private slots:
 
     void on_pushButtonDeleteSelectedChemoAndMed_clicked();
 
+    void on_actionAbout_triggered();
+
 private:
     Ui::MainWindow *ui;
     QString m_previousPatientDataFileName;
