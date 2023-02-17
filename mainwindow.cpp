@@ -1081,4 +1081,3 @@ void MainWindow::on_actionAbout_triggered()
                        "Leuki - About",
                        "Leuki is published under the GPL-3.0 license. For information on licenses and source code, visit: <a href='https://github.com/svenwml/Leuki'>https://github.com/svenwml/Leuki</a>");
 }
-
