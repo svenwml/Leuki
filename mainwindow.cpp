@@ -235,6 +235,9 @@ void MainWindow::loadPatientDataFile(QString& patientDataFileName)
 
     ui->lineEditPatientName->setText(patientDataJsonObject["name"].toString());
     ui->lineEditPatientDateOfBirth->setText(patientDataJsonObject["dateOfBirth"].toString());
+    ui->lineEditPatientSize->setText(patientDataJsonObject["size"].toString());
+    ui->lineEditPatientWeight->setText(patientDataJsonObject["weight"].toString());
+    ui->lineEditPatientBodySurface->setText(patientDataJsonObject["bodySurface"].toString());
 
     auto bloodSamplesArraySize = patientDataJsonObject["bloodSamples"].toArray().size();
 
@@ -837,6 +840,9 @@ void MainWindow::on_actionSettingsSaveAs_triggered()
 
     patientDataJsonObject["name"] = ui->lineEditPatientName->text();
     patientDataJsonObject["dateOfBirth"] = ui->lineEditPatientDateOfBirth->text();
+    patientDataJsonObject["size"] = ui->lineEditPatientSize->text();
+    patientDataJsonObject["weight"] = ui->lineEditPatientWeight->text();
+    patientDataJsonObject["bodySurface"] = ui->lineEditPatientBodySurface->text();
 
     // Make sure that each cell of the blood samples table contains some text.
     ensureTableWidgetCellsAreNotNull(*(ui->tableWidgetBloodSamples));
@@ -1028,6 +1034,21 @@ void MainWindow::on_lineEditPatientName_textEdited(const QString &arg1)
 }
 
 void MainWindow::on_lineEditPatientDateOfBirth_textEdited(const QString &arg1)
+{
+    m_patientDataChangedSinceLastSave = true;
+}
+
+void MainWindow::on_lineEditPatientSize_textEdited(const QString &arg1)
+{
+    m_patientDataChangedSinceLastSave = true;
+}
+
+void MainWindow::on_lineEditPatientWeight_textEdited(const QString &arg1)
+{
+    m_patientDataChangedSinceLastSave = true;
+}
+
+void MainWindow::on_lineEditPatientBodySurface_textEdited(const QString &arg1)
 {
     m_patientDataChangedSinceLastSave = true;
 }

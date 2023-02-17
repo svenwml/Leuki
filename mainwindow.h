@@ -49,6 +49,12 @@ private slots:
 
     void on_lineEditPatientDateOfBirth_textEdited(const QString &arg1);
 
+    void on_lineEditPatientSize_textEdited(const QString &arg1);
+
+    void on_lineEditPatientWeight_textEdited(const QString &arg1);
+
+    void on_lineEditPatientBodySurface_textEdited(const QString &arg1);
+
     void on_pushButtonDeleteSelectedBloodSample_clicked();
 
     void on_pushButtonDeleteSelectedChemoAndMed_clicked();
