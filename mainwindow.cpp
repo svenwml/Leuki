@@ -897,7 +897,7 @@ void MainWindow::on_actionSettingsSaveAs_triggered()
 
         chemoAndMedsJsonObject["date"] = ui->tableWidgetChemoAndMeds->item(i, tableWidgetChemoAndMedsColumns.indexOf("Date (Start)"))->text();
         chemoAndMedsJsonObject["name"] = ui->tableWidgetChemoAndMeds->item(i, tableWidgetChemoAndMedsColumns.indexOf("Name"))->text();
-        chemoAndMedsJsonObject["dose"] = ui->tableWidgetChemoAndMeds->item(i, tableWidgetChemoAndMedsColumns.indexOf("Dose"))->text();
+        chemoAndMedsJsonObject["dose"] = ui->tableWidgetChemoAndMeds->item(i, tableWidgetChemoAndMedsColumns.indexOf("Dose per Day"))->text();
         chemoAndMedsJsonObject["days"] = ui->tableWidgetChemoAndMeds->item(i, tableWidgetChemoAndMedsColumns.indexOf("Days"))->text();
 
         chemoAndMedsArray.push_back(chemoAndMedsJsonObject);
