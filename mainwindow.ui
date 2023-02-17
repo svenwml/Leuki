@@ -356,7 +356,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>Use the scroll wheel to zoom. For zooming only one axis, select the axis first by clicking on it.</string>
+       <string>Use the scroll wheel to zoom. For zooming only one axis, place the mouse over the respective axis while scrolling.</string>
       </property>
       <property name="wordWrap">
        <bool>true</bool>
