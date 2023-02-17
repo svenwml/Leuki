@@ -170,6 +170,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->customPlot->xAxis->setLabel("Date");
 
+    ui->customPlot->xAxis->setUpperEnding(QCPLineEnding::esSpikeArrow);
+    ui->customPlot->yAxis->setUpperEnding(QCPLineEnding::esSpikeArrow);
+
     // Configure horizontal axis to show date.
     QSharedPointer<QCPAxisTickerDateTime> dateTicker(new QCPAxisTickerDateTime);
     dateTicker->setDateTimeFormat("dd.MM.yyyy");
