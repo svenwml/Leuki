@@ -18,10 +18,10 @@ const static QVector<QString> tabWidgetTabs
 const static QVector<QString> tableWidgetBloodSamplesColumns
 {
     "Date",
-    "Leukocytes",
-    "Erythrocytes",
-    "Hemoglobin",
-    "Thrombocytes"
+    "Leukocytes [Giga/l]",
+    "Erythrocytes [Tera/l]",
+    "Hemoglobin [g/dl]",
+    "Thrombocytes [Giga/l]"
 };
 
 const static QVector<QString> tableWidgetChemoAndMedsColumns
@@ -263,13 +263,13 @@ void MainWindow::loadPatientDataFile(QString& patientDataFileName)
         {
             double leukocytes = patientDataJsonObject["bloodSamples"][i]["leukocytes"].toDouble();
             ui->tableWidgetBloodSamples->setItem(i,
-                                                 tableWidgetBloodSamplesColumns.indexOf("Leukocytes"),
+                                                 tableWidgetBloodSamplesColumns.indexOf("Leukocytes [Giga/l]"),
                                                  new QTableWidgetItem(QString::number(leukocytes)));
         }
         else if(patientDataJsonObject["bloodSamples"][i]["leukocytes"].isString())
         {
             ui->tableWidgetBloodSamples->setItem(i,
-                                                 tableWidgetBloodSamplesColumns.indexOf("Leukocytes"),
+                                                 tableWidgetBloodSamplesColumns.indexOf("Leukocytes [Giga/l]"),
                                                  new QTableWidgetItem(patientDataJsonObject["bloodSamples"][i]["leukocytes"].toString()));
         }
 
@@ -278,13 +278,13 @@ void MainWindow::loadPatientDataFile(QString& patientDataFileName)
         if(patientDataJsonObject["bloodSamples"][i]["erythrocytes"].isDouble())
         {
             ui->tableWidgetBloodSamples->setItem(i,
-                                                 tableWidgetBloodSamplesColumns.indexOf("Erythrocytes"),
+                                                 tableWidgetBloodSamplesColumns.indexOf("Erythrocytes [Tera/l]"),
                                                  new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["erythrocytes"].toDouble())));
         }
         else if(patientDataJsonObject["bloodSamples"][i]["erythrocytes"].isString())
         {
             ui->tableWidgetBloodSamples->setItem(i,
-                                                 tableWidgetBloodSamplesColumns.indexOf("Erythrocytes"),
+                                                 tableWidgetBloodSamplesColumns.indexOf("Erythrocytes [Tera/l]"),
                                                  new QTableWidgetItem(patientDataJsonObject["bloodSamples"][i]["erythrocytes"].toString()));
         }
 
@@ -293,13 +293,13 @@ void MainWindow::loadPatientDataFile(QString& patientDataFileName)
         if(patientDataJsonObject["bloodSamples"][i]["hemoglobin"].isDouble())
         {
             ui->tableWidgetBloodSamples->setItem(i,
-                                                 tableWidgetBloodSamplesColumns.indexOf("Hemoglobin"),
+                                                 tableWidgetBloodSamplesColumns.indexOf("Hemoglobin [g/dl]"),
                                                  new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["hemoglobin"].toDouble())));
         }
         else if(patientDataJsonObject["bloodSamples"][i]["hemoglobin"].isString())
         {
             ui->tableWidgetBloodSamples->setItem(i,
-                                                 tableWidgetBloodSamplesColumns.indexOf("Hemoglobin"),
+                                                 tableWidgetBloodSamplesColumns.indexOf("Hemoglobin [g/dl]"),
                                                  new QTableWidgetItem(patientDataJsonObject["bloodSamples"][i]["hemoglobin"].toString()));
         }
 
@@ -308,13 +308,13 @@ void MainWindow::loadPatientDataFile(QString& patientDataFileName)
         if(patientDataJsonObject["bloodSamples"][i]["thrombocytes"].isDouble())
         {
             ui->tableWidgetBloodSamples->setItem(i,
-                                                 tableWidgetBloodSamplesColumns.indexOf("Thrombocytes"),
+                                                 tableWidgetBloodSamplesColumns.indexOf("Thrombocytes [Giga/l]"),
                                                  new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["thrombocytes"].toDouble())));
         }
         else if(patientDataJsonObject["bloodSamples"][i]["thrombocytes"].isString())
         {
             ui->tableWidgetBloodSamples->setItem(i,
-                                                 tableWidgetBloodSamplesColumns.indexOf("Thrombocytes"),
+                                                 tableWidgetBloodSamplesColumns.indexOf("Thrombocytes [Giga/l]"),
                                                  new QTableWidgetItem(patientDataJsonObject["bloodSamples"][i]["thrombocytes"].toString()));
         }
     }
@@ -589,7 +589,7 @@ void MainWindow::plotVisualization()
         ui->customPlot->graph(column - 1)->setLineStyle(QCPGraph::lsLine);
         ui->customPlot->graph(column - 1)->setScatterStyle(QCPScatterStyle::ssStar);
 
-        if(column == tableWidgetBloodSamplesColumns.indexOf("Leukocytes"))
+        if(column == tableWidgetBloodSamplesColumns.indexOf("Leukocytes [Giga/l]"))
         {
             if(!ui->checkBoxVisualizationShowLeukocytes->isChecked())
             {
@@ -598,7 +598,7 @@ void MainWindow::plotVisualization()
 
             ui->customPlot->graph(column - 1)->setPen(QPen(Qt::blue));
         }
-        else if(column == tableWidgetBloodSamplesColumns.indexOf("Erythrocytes"))
+        else if(column == tableWidgetBloodSamplesColumns.indexOf("Erythrocytes [Tera/l]"))
         {
             if(!ui->checkBoxVisualizationShowErythrocytes->isChecked())
             {
@@ -607,7 +607,7 @@ void MainWindow::plotVisualization()
 
             ui->customPlot->graph(column - 1)->setPen(QPen(Qt::red));
         }
-        else if(column == tableWidgetBloodSamplesColumns.indexOf("Hemoglobin"))
+        else if(column == tableWidgetBloodSamplesColumns.indexOf("Hemoglobin [g/dl]"))
         {
             if(!ui->checkBoxVisualizationShowHemoglobin->isChecked())
             {
@@ -616,7 +616,7 @@ void MainWindow::plotVisualization()
 
             ui->customPlot->graph(column - 1)->setPen(QPen(Qt::magenta));
         }
-        else if(column == tableWidgetBloodSamplesColumns.indexOf("Thrombocytes"))
+        else if(column == tableWidgetBloodSamplesColumns.indexOf("Thrombocytes [Giga/l]"))
         {
             if(!ui->checkBoxVisualizationShowThrombocytes->isChecked())
             {
@@ -861,28 +861,28 @@ void MainWindow::on_actionSettingsSaveAs_triggered()
 
         bool conversionSuccessful = false;
 
-        bloodSamplesJsonObject["leukocytes"] = ui->tableWidgetBloodSamples->item(i, tableWidgetBloodSamplesColumns.indexOf("Leukocytes"))->text().toDouble(&conversionSuccessful);
+        bloodSamplesJsonObject["leukocytes"] = ui->tableWidgetBloodSamples->item(i, tableWidgetBloodSamplesColumns.indexOf("Leukocytes [Giga/l]"))->text().toDouble(&conversionSuccessful);
 
         if(!conversionSuccessful)
         {
             bloodSamplesJsonObject["leukocytes"] = "";
         }
 
-        bloodSamplesJsonObject["erythrocytes"] = ui->tableWidgetBloodSamples->item(i, tableWidgetBloodSamplesColumns.indexOf("Erythrocytes"))->text().toDouble(&conversionSuccessful);
+        bloodSamplesJsonObject["erythrocytes"] = ui->tableWidgetBloodSamples->item(i, tableWidgetBloodSamplesColumns.indexOf("Erythrocytes [Tera/l]"))->text().toDouble(&conversionSuccessful);
 
         if(!conversionSuccessful)
         {
             bloodSamplesJsonObject["erythrocytes"] = "";
         }
 
-        bloodSamplesJsonObject["hemoglobin"] = ui->tableWidgetBloodSamples->item(i, tableWidgetBloodSamplesColumns.indexOf("Hemoglobin"))->text().toDouble(&conversionSuccessful);
+        bloodSamplesJsonObject["hemoglobin"] = ui->tableWidgetBloodSamples->item(i, tableWidgetBloodSamplesColumns.indexOf("Hemoglobin [g/dl]"))->text().toDouble(&conversionSuccessful);
 
         if(!conversionSuccessful)
         {
             bloodSamplesJsonObject["hemoglobin"] = "";
         }
 
-        bloodSamplesJsonObject["thrombocytes"] = ui->tableWidgetBloodSamples->item(i, tableWidgetBloodSamplesColumns.indexOf("Thrombocytes"))->text().toDouble(&conversionSuccessful);
+        bloodSamplesJsonObject["thrombocytes"] = ui->tableWidgetBloodSamples->item(i, tableWidgetBloodSamplesColumns.indexOf("Thrombocytes [Giga/l]"))->text().toDouble(&conversionSuccessful);
 
         if(!conversionSuccessful)
         {
