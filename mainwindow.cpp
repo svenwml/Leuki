@@ -212,6 +212,12 @@ void MainWindow::initializeAfterShowing()
     {
         m_tableDataChangedSinceLastVisualizationPlot = true;
     }
+
+    ui->tableWidgetBloodSamples->scrollTo(ui->tableWidgetBloodSamples->model()->index(0, 0));
+    ui->tableWidgetBloodSamples->scrollTo(ui->tableWidgetBloodSamples->model()->index(ui->tableWidgetBloodSamples->rowCount() - 1, 0));
+
+    ui->tableWidgetChemoAndMeds->scrollTo(ui->tableWidgetChemoAndMeds->model()->index(0, 0));
+    ui->tableWidgetChemoAndMeds->scrollTo(ui->tableWidgetChemoAndMeds->model()->index(ui->tableWidgetChemoAndMeds->rowCount() - 1, 0));
 }
 
 // Loads the patient data file, fills all forms and triggers visualization plot.
