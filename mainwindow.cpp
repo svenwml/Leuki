@@ -213,6 +213,7 @@ void MainWindow::initializeAfterShowing()
         m_tableDataChangedSinceLastVisualizationPlot = true;
     }
 
+    // Scroll to bottoms of tables per default. Slight workaround needed (first top, then bottom).
     ui->tableWidgetBloodSamples->scrollTo(ui->tableWidgetBloodSamples->model()->index(0, 0));
     ui->tableWidgetBloodSamples->scrollTo(ui->tableWidgetBloodSamples->model()->index(ui->tableWidgetBloodSamples->rowCount() - 1, 0));
 
