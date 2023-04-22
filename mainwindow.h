@@ -61,6 +61,14 @@ private slots:
 
     void on_actionAbout_triggered();
 
+    void on_pushButtonJumpTopBloodSample_clicked();
+
+    void on_pushButtonJumpBottomBloodSample_clicked();
+
+    void on_pushButtonJumpTopChemoAndMed_clicked();
+
+    void on_pushButtonJumpBottomChemoAndMed_clicked();
+
 private:
     Ui::MainWindow *ui;
     QString m_previousPatientDataFileName;

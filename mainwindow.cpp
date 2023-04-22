@@ -1091,3 +1091,23 @@ void MainWindow::on_actionAbout_triggered()
                        "Leuki - About",
                        "Leuki is published under the GPL-3.0 license. For information on licenses and source code, visit: <a href='https://github.com/svenwml/Leuki'>https://github.com/svenwml/Leuki</a>");
 }
+
+void MainWindow::on_pushButtonJumpTopBloodSample_clicked()
+{
+    ui->tableWidgetBloodSamples->scrollTo(ui->tableWidgetBloodSamples->model()->index(0, 0));
+}
+
+void MainWindow::on_pushButtonJumpBottomBloodSample_clicked()
+{
+    ui->tableWidgetBloodSamples->scrollTo(ui->tableWidgetBloodSamples->model()->index(ui->tableWidgetBloodSamples->rowCount() - 1, 0));
+}
+
+void MainWindow::on_pushButtonJumpTopChemoAndMed_clicked()
+{
+    ui->tableWidgetChemoAndMeds->scrollTo(ui->tableWidgetChemoAndMeds->model()->index(0, 0));
+}
+
+void MainWindow::on_pushButtonJumpBottomChemoAndMed_clicked()
+{
+    ui->tableWidgetChemoAndMeds->scrollTo(ui->tableWidgetChemoAndMeds->model()->index(ui->tableWidgetChemoAndMeds->rowCount() - 1, 0));
+}

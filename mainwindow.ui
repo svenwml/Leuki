@@ -217,12 +217,44 @@
        <rect>
         <x>70</x>
         <y>340</y>
-        <width>101</width>
+        <width>111</width>
         <height>24</height>
        </rect>
       </property>
       <property name="text">
        <string>Delete Selected</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButtonJumpTopBloodSample">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>370</y>
+        <width>75</width>
+        <height>24</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Jump Top</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButtonJumpBottomBloodSample">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>90</x>
+        <y>370</y>
+        <width>91</width>
+        <height>24</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Jump Bottom</string>
       </property>
      </widget>
     </widget>
@@ -258,12 +290,44 @@
        <rect>
         <x>70</x>
         <y>340</y>
-        <width>101</width>
+        <width>111</width>
         <height>24</height>
        </rect>
       </property>
       <property name="text">
        <string>Delete Selected</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButtonJumpTopChemoAndMed">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>370</y>
+        <width>75</width>
+        <height>24</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Jump Top</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButtonJumpBottomChemoAndMed">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>90</x>
+        <y>370</y>
+        <width>91</width>
+        <height>24</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Jump Bottom</string>
       </property>
      </widget>
     </widget>
