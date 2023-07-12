@@ -256,7 +256,7 @@ void MainWindow::loadPatientDataFile(QString& patientDataFileName)
     for(auto i = 0; i < bloodSamplesArraySize; i++)
     {
         // Date
-        QString dateString = patientDataJsonObject["bloodSamples"][i]["date"].toString();
+        QString dateString = patientDataJsonObject["bloodSamples"].toArray().at(i)["date"].toString();
         ui->tableWidgetBloodSamples->setItem(i,
                                              tableWidgetBloodSamplesColumns.indexOf("Date"),
                                              new QTableWidgetItem(dateString));
@@ -266,63 +266,63 @@ void MainWindow::loadPatientDataFile(QString& patientDataFileName)
 
         // Leukocytes
 
-        if(patientDataJsonObject["bloodSamples"][i]["leukocytes"].isDouble())
+        if(patientDataJsonObject["bloodSamples"].toArray().at(i)["leukocytes"].isDouble())
         {
-            double leukocytes = patientDataJsonObject["bloodSamples"][i]["leukocytes"].toDouble();
+            double leukocytes = patientDataJsonObject["bloodSamples"].toArray().at(i)["leukocytes"].toDouble();
             ui->tableWidgetBloodSamples->setItem(i,
                                                  tableWidgetBloodSamplesColumns.indexOf("Leukocytes [Giga/l]"),
                                                  new QTableWidgetItem(QString::number(leukocytes)));
         }
-        else if(patientDataJsonObject["bloodSamples"][i]["leukocytes"].isString())
+        else if(patientDataJsonObject["bloodSamples"].toArray().at(i)["leukocytes"].isString())
         {
             ui->tableWidgetBloodSamples->setItem(i,
                                                  tableWidgetBloodSamplesColumns.indexOf("Leukocytes [Giga/l]"),
-                                                 new QTableWidgetItem(patientDataJsonObject["bloodSamples"][i]["leukocytes"].toString()));
+                                                 new QTableWidgetItem(patientDataJsonObject["bloodSamples"].toArray().at(i)["leukocytes"].toString()));
         }
 
         // Erythrocytes
 
-        if(patientDataJsonObject["bloodSamples"][i]["erythrocytes"].isDouble())
+        if(patientDataJsonObject["bloodSamples"].toArray().at(i)["erythrocytes"].isDouble())
         {
             ui->tableWidgetBloodSamples->setItem(i,
                                                  tableWidgetBloodSamplesColumns.indexOf("Erythrocytes [Tera/l]"),
-                                                 new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["erythrocytes"].toDouble())));
+                                                 new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"].toArray().at(i)["erythrocytes"].toDouble())));
         }
-        else if(patientDataJsonObject["bloodSamples"][i]["erythrocytes"].isString())
+        else if(patientDataJsonObject["bloodSamples"].toArray().at(i)["erythrocytes"].isString())
         {
             ui->tableWidgetBloodSamples->setItem(i,
                                                  tableWidgetBloodSamplesColumns.indexOf("Erythrocytes [Tera/l]"),
-                                                 new QTableWidgetItem(patientDataJsonObject["bloodSamples"][i]["erythrocytes"].toString()));
+                                                 new QTableWidgetItem(patientDataJsonObject["bloodSamples"].toArray().at(i)["erythrocytes"].toString()));
         }
 
         // Hemoglobin
 
-        if(patientDataJsonObject["bloodSamples"][i]["hemoglobin"].isDouble())
+        if(patientDataJsonObject["bloodSamples"].toArray().at(i)["hemoglobin"].isDouble())
         {
             ui->tableWidgetBloodSamples->setItem(i,
                                                  tableWidgetBloodSamplesColumns.indexOf("Hemoglobin [g/dl]"),
-                                                 new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["hemoglobin"].toDouble())));
+                                                 new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"].toArray().at(i)["hemoglobin"].toDouble())));
         }
-        else if(patientDataJsonObject["bloodSamples"][i]["hemoglobin"].isString())
+        else if(patientDataJsonObject["bloodSamples"].toArray().at(i)["hemoglobin"].isString())
         {
             ui->tableWidgetBloodSamples->setItem(i,
                                                  tableWidgetBloodSamplesColumns.indexOf("Hemoglobin [g/dl]"),
-                                                 new QTableWidgetItem(patientDataJsonObject["bloodSamples"][i]["hemoglobin"].toString()));
+                                                 new QTableWidgetItem(patientDataJsonObject["bloodSamples"].toArray().at(i)["hemoglobin"].toString()));
         }
 
         // Thrombocytes
 
-        if(patientDataJsonObject["bloodSamples"][i]["thrombocytes"].isDouble())
+        if(patientDataJsonObject["bloodSamples"].toArray().at(i)["thrombocytes"].isDouble())
         {
             ui->tableWidgetBloodSamples->setItem(i,
                                                  tableWidgetBloodSamplesColumns.indexOf("Thrombocytes [Giga/l]"),
-                                                 new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"][i]["thrombocytes"].toDouble())));
+                                                 new QTableWidgetItem(QString::number(patientDataJsonObject["bloodSamples"].toArray().at(i)["thrombocytes"].toDouble())));
         }
-        else if(patientDataJsonObject["bloodSamples"][i]["thrombocytes"].isString())
+        else if(patientDataJsonObject["bloodSamples"].toArray().at(i)["thrombocytes"].isString())
         {
             ui->tableWidgetBloodSamples->setItem(i,
                                                  tableWidgetBloodSamplesColumns.indexOf("Thrombocytes [Giga/l]"),
-                                                 new QTableWidgetItem(patientDataJsonObject["bloodSamples"][i]["thrombocytes"].toString()));
+                                                 new QTableWidgetItem(patientDataJsonObject["bloodSamples"].toArray().at(i)["thrombocytes"].toString()));
         }
     }
 
@@ -333,23 +333,23 @@ void MainWindow::loadPatientDataFile(QString& patientDataFileName)
     for(auto i = 0; i < chemoAndMedsArraySize; i++)
     {
         // Date
-        QString dateString = patientDataJsonObject["chemoTherapyAndMedicamentation"][i]["date"].toString();
+        QString dateString = patientDataJsonObject["chemoTherapyAndMedicamentation"].toArray().at(i)["date"].toString();
         ui->tableWidgetChemoAndMeds->setItem(i, tableWidgetChemoAndMedsColumns.indexOf("Date (Start)"), new QTableWidgetItem(dateString));
 
         // Name
-        QString nameString = patientDataJsonObject["chemoTherapyAndMedicamentation"][i]["name"].toString();
+        QString nameString = patientDataJsonObject["chemoTherapyAndMedicamentation"].toArray().at(i)["name"].toString();
         ui->tableWidgetChemoAndMeds->setItem(i,
                                              tableWidgetChemoAndMedsColumns.indexOf("Name"),
                                              new QTableWidgetItem(nameString));
 
         // Dose
-        QString doseString = patientDataJsonObject["chemoTherapyAndMedicamentation"][i]["dose"].toString();
+        QString doseString = patientDataJsonObject["chemoTherapyAndMedicamentation"].toArray().at(i)["dose"].toString();
         ui->tableWidgetChemoAndMeds->setItem(i,
                                              tableWidgetChemoAndMedsColumns.indexOf("Dose per Day"),
                                              new QTableWidgetItem(doseString));
 
         // Days
-        QString daysString = patientDataJsonObject["chemoTherapyAndMedicamentation"][i]["days"].toString();
+        QString daysString = patientDataJsonObject["chemoTherapyAndMedicamentation"].toArray().at(i)["days"].toString();
         ui->tableWidgetChemoAndMeds->setItem(i,
                                              tableWidgetChemoAndMedsColumns.indexOf("Days"),
                                              new QTableWidgetItem(daysString));
