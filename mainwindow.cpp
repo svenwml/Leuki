@@ -586,6 +586,10 @@ void MainWindow::plotVisualization()
 
     ui->customPlot->yAxis->setLabel(yAxisLabel);
 
+    QFont yAxisLabelFont;
+    yAxisLabelFont.setPointSize(6);
+    ui->customPlot->yAxis->setLabelFont(yAxisLabelFont);
+
     auto bloodSamplesCount = ui->tableWidgetBloodSamples->rowCount();
     double yAxisMax = 0.0;
 

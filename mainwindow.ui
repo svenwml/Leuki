@@ -7,8 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>600</height>
+    <height>500</height>
    </rect>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>11</pointsize>
+   </font>
   </property>
   <property name="windowTitle">
    <string>Leuki - Blood Value and Chemotherapy / Medicamentation Tracking and Visualization</string>
@@ -20,7 +25,7 @@
       <x>0</x>
       <y>0</y>
       <width>801</width>
-      <height>561</height>
+      <height>521</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -341,7 +346,7 @@
         <x>10</x>
         <y>10</y>
         <width>751</width>
-        <height>481</height>
+        <height>351</height>
        </rect>
       </property>
      </widget>
@@ -349,8 +354,8 @@
       <property name="geometry">
        <rect>
         <x>390</x>
-        <y>490</y>
-        <width>81</width>
+        <y>370</y>
+        <width>101</width>
         <height>20</height>
        </rect>
       </property>
@@ -486,6 +491,15 @@
          <colorrole role="ToolTipText">
           <brush brushstyle="SolidPattern">
            <color alpha="255">
+            <red>0</red>
+            <green>0</green>
+            <blue>0</blue>
+           </color>
+          </brush>
+         </colorrole>
+         <colorrole role="PlaceholderText">
+          <brush brushstyle="NoBrush">
+           <color alpha="128">
             <red>0</red>
             <green>0</green>
             <blue>0</blue>
@@ -629,6 +643,15 @@
            </color>
           </brush>
          </colorrole>
+         <colorrole role="PlaceholderText">
+          <brush brushstyle="NoBrush">
+           <color alpha="128">
+            <red>0</red>
+            <green>0</green>
+            <blue>0</blue>
+           </color>
+          </brush>
+         </colorrole>
         </inactive>
         <disabled>
          <colorrole role="WindowText">
@@ -766,6 +789,15 @@
            </color>
           </brush>
          </colorrole>
+         <colorrole role="PlaceholderText">
+          <brush brushstyle="NoBrush">
+           <color alpha="128">
+            <red>0</red>
+            <green>0</green>
+            <blue>0</blue>
+           </color>
+          </brush>
+         </colorrole>
         </disabled>
        </palette>
       </property>
@@ -776,9 +808,9 @@
      <widget class="QCheckBox" name="checkBoxVisualizationShowErythrocytes">
       <property name="geometry">
        <rect>
-        <x>480</x>
-        <y>490</y>
-        <width>91</width>
+        <x>520</x>
+        <y>370</y>
+        <width>131</width>
         <height>20</height>
        </rect>
       </property>
@@ -826,9 +858,9 @@
      <widget class="QCheckBox" name="checkBoxVisualizationShowHemoglobin">
       <property name="geometry">
        <rect>
-        <x>570</x>
-        <y>490</y>
-        <width>91</width>
+        <x>670</x>
+        <y>370</y>
+        <width>111</width>
         <height>20</height>
        </rect>
       </property>
@@ -877,8 +909,8 @@
       <property name="geometry">
        <rect>
         <x>670</x>
-        <y>490</y>
-        <width>101</width>
+        <y>390</y>
+        <width>131</width>
         <height>20</height>
        </rect>
       </property>
@@ -927,8 +959,8 @@
       <property name="geometry">
        <rect>
         <x>390</x>
-        <y>510</y>
-        <width>211</width>
+        <y>390</y>
+        <width>271</width>
         <height>20</height>
        </rect>
       </property>
@@ -940,13 +972,13 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>490</y>
+        <y>360</y>
         <width>341</width>
-        <height>31</height>
+        <height>61</height>
        </rect>
       </property>
       <property name="text">
-       <string>Use the scroll wheel to zoom. For zooming only one axis, place the mouse over the respective axis while scrolling.</string>
+       <string>Use the scroll wheel to zoom. For zooming only one axis, place the mouse over the axis while scrolling.</string>
       </property>
       <property name="wordWrap">
        <bool>true</bool>
@@ -961,7 +993,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>22</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuLeuki">
